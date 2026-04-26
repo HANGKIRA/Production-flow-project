@@ -1,0 +1,111 @@
+{
+  "staff": [
+    {
+      "user_id": "u_staff_1",
+      "name": "Aina Staff",
+      "role": "STAFF",
+      "hourly_rate": 160,
+      "mc_days": 0,
+      "leave_days": 0,
+      "status": "ACTIVE"
+    },
+    {
+      "user_id": "u_designer_1",
+      "name": "Ravi Designer",
+      "role": "DESIGNER",
+      "hourly_rate": 15,
+      "mc_days": 0,
+      "leave_days": 1,
+      "status": "ACTIVE"
+    }
+  ],
+  "attendance": [
+    {
+      "entry_id": "ATT-1001",
+      "user_id": "u_staff_1",
+      "clock_in": "2026-04-24T18:05:48.868Z",
+      "clock_out": "2026-04-25T02:05:48.868Z",
+      "clock_in_ip": "127.0.0.1",
+      "clock_out_ip": "127.0.0.1"
+    },
+    {
+      "entry_id": "ATT-1002",
+      "user_id": "u_designer_1",
+      "clock_in": "2026-04-24T18:05:48.868Z",
+      "clock_out": "2026-04-25T00:35:48.868Z",
+      "clock_in_ip": "127.0.0.1",
+      "clock_out_ip": "127.0.0.1"
+    },
+    {
+      "entry_id": "ATT-1777141309204",
+      "user_id": "u_staff_1",
+      "clock_in": "2026-04-25T18:21:49.204Z",
+      "clock_out": "2026-04-25T18:21:50.643Z",
+      "clock_in_ip": "::1",
+      "clock_out_ip": "::1"
+    },
+    {
+      "entry_id": "ATT-1777141399674",
+      "user_id": "u_staff_1",
+      "clock_in": "2026-04-25T18:23:19.674Z",
+      "clock_out": "2026-04-25T18:23:25.041Z",
+      "clock_in_ip": "::1",
+      "clock_out_ip": "::1"
+    },
+    {
+      "entry_id": "ATT-1777141406496",
+      "user_id": "u_staff_1",
+      "clock_in": "2026-04-25T18:23:26.496Z",
+      "clock_out": "2026-04-25T18:23:26.704Z",
+      "clock_in_ip": "::1",
+      "clock_out_ip": "::1"
+    }
+  ],
+  "leaves": [
+    {
+      "leave_id": "LEV-1001",
+      "user_id": "u_staff_1",
+      "type": "MC",
+      "start_date": "2026-04-13T18:05:48.868Z",
+      "end_date": "2026-04-13T18:05:48.868Z",
+      "days": 1,
+      "note": "Clinic MC"
+    },
+    {
+      "leave_id": "LEV-1002",
+      "user_id": "u_designer_1",
+      "type": "Annual Leave",
+      "start_date": "2026-04-05T18:05:48.868Z",
+      "end_date": "2026-04-05T18:05:48.868Z",
+      "days": 1,
+      "note": ""
+    },
+    {
+      "leave_id": "LEV-1777140516904",
+      "user_id": "u_staff_1",
+      "type": "Unpaid Leave",
+      "start_date": "2026-04-25T00:00:00.000Z",
+      "end_date": "2026-04-25T00:00:00.000Z",
+      "days": 1,
+      "note": ""
+    },
+    {
+      "leave_id": "LEV-1777140518934",
+      "user_id": "u_staff_1",
+      "type": "MC",
+      "start_date": "2026-04-25T00:00:00.000Z",
+      "end_date": "2026-04-25T00:00:00.000Z",
+      "days": 1,
+      "note": ""
+    },
+    {
+      "leave_id": "LEV-1777140519646",
+      "user_id": "u_staff_1",
+      "type": "MC",
+      "start_date": "2026-04-25T00:00:00.000Z",
+      "end_date": "2026-04-25T00:00:00.000Z",
+      "days": 1,
+      "note": ""
+    }
+  ]
+}

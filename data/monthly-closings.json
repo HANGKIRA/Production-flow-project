@@ -1,0 +1,153 @@
+[
+  {
+    "closing_id": "CLS-2026-03",
+    "month": "2026-03",
+    "expenses": [
+      {
+        "label": "YH",
+        "amount": 6300
+      },
+      {
+        "label": "JH",
+        "amount": 6300
+      },
+      {
+        "label": "AFDAL",
+        "amount": 2233.4
+      },
+      {
+        "label": "SYED",
+        "amount": 521.77
+      },
+      {
+        "label": "TNB",
+        "amount": 500
+      },
+      {
+        "label": "RENTAL",
+        "amount": 1500
+      },
+      {
+        "label": "MKT",
+        "amount": 2200
+      },
+      {
+        "label": "ZX",
+        "amount": 5300
+      },
+      {
+        "label": "Shahril",
+        "amount": 1887
+      },
+      {
+        "label": "adam",
+        "amount": 625.61
+      },
+      {
+        "label": "miza",
+        "amount": 869
+      },
+      {
+        "label": "water",
+        "amount": 35
+      },
+      {
+        "label": "HAFIZ PT",
+        "amount": 537.6
+      },
+      {
+        "label": "RENTAL",
+        "amount": 1600
+      }
+    ],
+    "stock_expenses": [
+      {
+        "label": "YH",
+        "amount": 6577
+      },
+      {
+        "label": "jh spay",
+        "amount": 0
+      },
+      {
+        "label": "JH",
+        "amount": 5705,
+        "note": "stock purchase"
+      },
+      {
+        "label": "ZX SPAY",
+        "amount": 961.3
+      }
+    ],
+    "shopee_cash_out": [
+      {
+        "label": "RS SHOPEE",
+        "amount": 6130
+      },
+      {
+        "label": "PR SHOPEE",
+        "amount": 12035
+      },
+      {
+        "label": "SG SHOPEE",
+        "amount": 10600
+      },
+      {
+        "label": "DM Shopee",
+        "amount": 4089.43
+      },
+      {
+        "label": "MG Shopee",
+        "amount": 3617.36
+      },
+      {
+        "label": "tiktok",
+        "amount": 400
+      }
+    ],
+    "shopee_sales": [
+      {
+        "label": "RS SHOPEE",
+        "amount": 10110
+      },
+      {
+        "label": "PR SHOPEE",
+        "amount": 15683
+      },
+      {
+        "label": "SG SHOPEE",
+        "amount": 9200
+      },
+      {
+        "label": "DM Shopee",
+        "amount": 6248
+      },
+      {
+        "label": "MG Shopee",
+        "amount": 6281.99
+      },
+      {
+        "label": "tiktok",
+        "amount": 534
+      }
+    ],
+    "offline_unpaid": 43507,
+    "offline_sales": 100127,
+    "offline_half_deposit": 0,
+    "bank_balance": 346344,
+    "note": "stock purchase - rm20,000"
+  },
+  {
+    "closing_id": "CLS-2026-04",
+    "month": "2026-04",
+    "expenses": [],
+    "stock_expenses": [],
+    "shopee_cash_out": [],
+    "shopee_sales": [],
+    "offline_unpaid": 0,
+    "offline_sales": 0,
+    "offline_half_deposit": 0,
+    "bank_balance": 0,
+    "note": ""
+  }
+]

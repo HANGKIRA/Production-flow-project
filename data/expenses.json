@@ -1,0 +1,83 @@
+[
+  {
+    "expense_id": "EXP-1001",
+    "name": "lalamove",
+    "amount": 100,
+    "purchased_by": "u_admin_hang",
+    "account": "paramour bank",
+    "expense_date": "2026-04-26T02:00:00.000Z",
+    "note": ""
+  },
+  {
+    "expense_id": "EXP-1002",
+    "name": "pray",
+    "amount": 120,
+    "purchased_by": "u_admin_hang",
+    "account": "cash",
+    "expense_date": "2026-04-24T17:54:05.787Z",
+    "note": ""
+  },
+  {
+    "expense_id": "EXP-1003",
+    "name": "sg ads top up",
+    "amount": 330,
+    "purchased_by": "u_admin_yh",
+    "account": "paramour bank",
+    "expense_date": "2026-04-23T17:54:05.787Z",
+    "note": ""
+  },
+  {
+    "expense_id": "EXP-1004",
+    "name": "SYSTEM DEPO",
+    "amount": 950,
+    "purchased_by": "u_admin_hang",
+    "account": "bank transfer",
+    "expense_date": "2026-04-22T17:54:05.787Z",
+    "note": ""
+  },
+  {
+    "expense_id": "EXP-1005",
+    "name": "lalamove + food",
+    "amount": 10,
+    "purchased_by": "u_admin_hang",
+    "account": "cash",
+    "expense_date": "2026-04-22T17:54:05.787Z",
+    "note": ""
+  },
+  {
+    "expense_id": "EXP-1006",
+    "name": "DTF X2 + sash + note pay",
+    "amount": 2900,
+    "purchased_by": "u_admin_zx",
+    "account": "paramour bank",
+    "expense_date": "2026-04-20T17:54:05.787Z",
+    "note": ""
+  },
+  {
+    "expense_id": "EXP-1007",
+    "name": "make app",
+    "amount": 50,
+    "purchased_by": "u_admin_yh",
+    "account": "cash",
+    "expense_date": "2026-04-19T17:54:05.787Z",
+    "note": ""
+  },
+  {
+    "expense_id": "EXP-1008",
+    "name": "righway",
+    "amount": 30.5,
+    "purchased_by": "u_admin_hang",
+    "account": "cash",
+    "expense_date": "2026-04-16T17:54:05.787Z",
+    "note": ""
+  },
+  {
+    "expense_id": "EXP-1777139817645",
+    "name": "lalamove",
+    "amount": 30,
+    "purchased_by": "u_admin_hang",
+    "account": "bank",
+    "expense_date": "2026-04-25T00:00:00.000Z",
+    "note": "lalamove la sohai"
+  }
+]

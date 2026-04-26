@@ -1,0 +1,615 @@
+{
+  "customers": [
+    {
+      "customer_id": "CUS-1001",
+      "customer_name": "Paramour Studio",
+      "phone_number": "+60123450001",
+      "created_at": "2026-02-04T18:40:48.359Z"
+    },
+    {
+      "customer_id": "CUS-1002",
+      "customer_name": "GZ Collective",
+      "phone_number": "+60123450002",
+      "created_at": "2026-03-26T18:40:48.360Z"
+    },
+    {
+      "customer_id": "CUS-1003",
+      "customer_name": "ISCAMU",
+      "phone_number": "+60123450003",
+      "created_at": "2026-04-05T18:40:48.360Z"
+    },
+    {
+      "customer_id": "CUS-1004",
+      "customer_name": "Rex Subang",
+      "phone_number": "+60123450004",
+      "created_at": "2026-04-15T18:40:48.360Z"
+    },
+    {
+      "customer_id": "CUS-1777142879436",
+      "customer_name": "test custonmer",
+      "phone_number": "01955555",
+      "created_at": "2026-04-25T18:47:59.436Z"
+    }
+  ],
+  "orders": [
+    {
+      "order_id": "ORD-1777142879436",
+      "customer_id": "CUS-1777142879436",
+      "customer_name": "test custonmer",
+      "phone_number": "01955555",
+      "item_id": "",
+      "product_type": "umbrella ",
+      "quantity": 100,
+      "status": "Waiting Approval",
+      "payment_status": "Unpaid",
+      "tracking_number": "",
+      "assigned_staff": "u_staff_1",
+      "notes": "canva link....",
+      "files": [],
+      "messages": [
+        {
+          "message_id": "MSG-1777203233424-2fbba3aebed778",
+          "order_id": "ORD-1777142879436",
+          "customer_name": "test custonmer",
+          "phone_number": "01955555",
+          "message_content": "Hi test custonmer, your design sample is ready. Please choose Confirm or Redesign. Approval ID: ORD-1777142879436",
+          "type": "auto",
+          "sent_at": "2026-04-26T11:33:53.424Z",
+          "status": "sent_simulation",
+          "direction": "outbound",
+          "provider": "simulation",
+          "customer_action": null,
+          "related_file_url": null,
+          "template_name": "design_sample_approval",
+          "interactive_actions": [
+            "confirm",
+            "redesign"
+          ]
+        },
+        {
+          "message_id": "MSG-1777203233425-a4338801da267",
+          "order_id": "ORD-1777142879436",
+          "customer_name": "test custonmer",
+          "phone_number": "01955555",
+          "message_content": "Your design is ready. Please review and reply Confirm or Redesign. Approval ID: ORD-1777142879436",
+          "type": "auto",
+          "sent_at": "2026-04-26T11:33:53.425Z",
+          "status": "simulated",
+          "direction": "outbound",
+          "provider": "simulation",
+          "customer_action": null,
+          "related_file_url": null
+        },
+        {
+          "message_id": "MSG-1777203251167-221c775328322",
+          "order_id": "ORD-1777142879436",
+          "customer_name": "test custonmer",
+          "phone_number": "01955555",
+          "message_content": "Hi test custonmer, your design sample is ready. Please choose Confirm or Redesign. Approval ID: ORD-1777142879436",
+          "type": "auto",
+          "sent_at": "2026-04-26T11:34:11.167Z",
+          "status": "sent_simulation",
+          "direction": "outbound",
+          "provider": "simulation",
+          "customer_action": null,
+          "related_file_url": null,
+          "template_name": "design_sample_approval",
+          "interactive_actions": [
+            "confirm",
+            "redesign"
+          ]
+        },
+        {
+          "message_id": "MSG-1777203251168-74c12be5dd2f5",
+          "order_id": "ORD-1777142879436",
+          "customer_name": "test custonmer",
+          "phone_number": "01955555",
+          "message_content": "Your design is ready. Please review and reply Confirm or Redesign. Approval ID: ORD-1777142879436",
+          "type": "auto",
+          "sent_at": "2026-04-26T11:34:11.168Z",
+          "status": "simulated",
+          "direction": "outbound",
+          "provider": "simulation",
+          "customer_action": null,
+          "related_file_url": null
+        },
+        {
+          "message_id": "MSG-1777203251815-f969ed5f69353",
+          "order_id": "ORD-1777142879436",
+          "customer_name": "test custonmer",
+          "phone_number": "01955555",
+          "message_content": "Hi test custonmer, your design sample is ready. Please choose Confirm or Redesign. Approval ID: ORD-1777142879436",
+          "type": "auto",
+          "sent_at": "2026-04-26T11:34:11.815Z",
+          "status": "sent_simulation",
+          "direction": "outbound",
+          "provider": "simulation",
+          "customer_action": null,
+          "related_file_url": null,
+          "template_name": "design_sample_approval",
+          "interactive_actions": [
+            "confirm",
+            "redesign"
+          ]
+        },
+        {
+          "message_id": "MSG-1777203251815-fcf0e4e2b0c96",
+          "order_id": "ORD-1777142879436",
+          "customer_name": "test custonmer",
+          "phone_number": "01955555",
+          "message_content": "Your design is ready. Please review and reply Confirm or Redesign. Approval ID: ORD-1777142879436",
+          "type": "auto",
+          "sent_at": "2026-04-26T11:34:11.815Z",
+          "status": "simulated",
+          "direction": "outbound",
+          "provider": "simulation",
+          "customer_action": null,
+          "related_file_url": null
+        },
+        {
+          "message_id": "MSG-1777203252311-348afa6227e258",
+          "order_id": "ORD-1777142879436",
+          "customer_name": "test custonmer",
+          "phone_number": "01955555",
+          "message_content": "Hi test custonmer, your design sample is ready. Please choose Confirm or Redesign. Approval ID: ORD-1777142879436",
+          "type": "auto",
+          "sent_at": "2026-04-26T11:34:12.311Z",
+          "status": "sent_simulation",
+          "direction": "outbound",
+          "provider": "simulation",
+          "customer_action": null,
+          "related_file_url": null,
+          "template_name": "design_sample_approval",
+          "interactive_actions": [
+            "confirm",
+            "redesign"
+          ]
+        },
+        {
+          "message_id": "MSG-1777203252311-e8295c40a64de",
+          "order_id": "ORD-1777142879436",
+          "customer_name": "test custonmer",
+          "phone_number": "01955555",
+          "message_content": "Your design is ready. Please review and reply Confirm or Redesign. Approval ID: ORD-1777142879436",
+          "type": "auto",
+          "sent_at": "2026-04-26T11:34:12.311Z",
+          "status": "simulated",
+          "direction": "outbound",
+          "provider": "simulation",
+          "customer_action": null,
+          "related_file_url": null
+        },
+        {
+          "message_id": "MSG-1777203252607-ffd16646e55c18",
+          "order_id": "ORD-1777142879436",
+          "customer_name": "test custonmer",
+          "phone_number": "01955555",
+          "message_content": "Hi test custonmer, your design sample is ready. Please choose Confirm or Redesign. Approval ID: ORD-1777142879436",
+          "type": "auto",
+          "sent_at": "2026-04-26T11:34:12.607Z",
+          "status": "sent_simulation",
+          "direction": "outbound",
+          "provider": "simulation",
+          "customer_action": null,
+          "related_file_url": null,
+          "template_name": "design_sample_approval",
+          "interactive_actions": [
+            "confirm",
+            "redesign"
+          ]
+        },
+        {
+          "message_id": "MSG-1777203252607-5b66e4993daab8",
+          "order_id": "ORD-1777142879436",
+          "customer_name": "test custonmer",
+          "phone_number": "01955555",
+          "message_content": "Your design is ready. Please review and reply Confirm or Redesign. Approval ID: ORD-1777142879436",
+          "type": "auto",
+          "sent_at": "2026-04-26T11:34:12.607Z",
+          "status": "simulated",
+          "direction": "outbound",
+          "provider": "simulation",
+          "customer_action": null,
+          "related_file_url": null
+        },
+        {
+          "message_id": "MSG-1777203254287-50fc13e89786f",
+          "order_id": "ORD-1777142879436",
+          "customer_name": "test custonmer",
+          "phone_number": "01955555",
+          "message_content": "Hi test custonmer, your design sample is ready. Please choose Confirm or Redesign. Approval ID: ORD-1777142879436",
+          "type": "auto",
+          "sent_at": "2026-04-26T11:34:14.287Z",
+          "status": "sent_simulation",
+          "direction": "outbound",
+          "provider": "simulation",
+          "customer_action": null,
+          "related_file_url": null,
+          "template_name": "design_sample_approval",
+          "interactive_actions": [
+            "confirm",
+            "redesign"
+          ]
+        },
+        {
+          "message_id": "MSG-1777203254287-6f9c4cc80d7cc",
+          "order_id": "ORD-1777142879436",
+          "customer_name": "test custonmer",
+          "phone_number": "01955555",
+          "message_content": "Your design is ready. Please review and reply Confirm or Redesign. Approval ID: ORD-1777142879436",
+          "type": "auto",
+          "sent_at": "2026-04-26T11:34:14.287Z",
+          "status": "simulated",
+          "direction": "outbound",
+          "provider": "simulation",
+          "customer_action": null,
+          "related_file_url": null
+        }
+      ],
+      "timeline": [
+        {
+          "status": "New Order",
+          "changed_by": "u_designer_1",
+          "timestamp": "2026-04-25T18:47:59.436Z"
+        },
+        {
+          "status": "Waiting Approval",
+          "changed_by": "u_admin",
+          "timestamp": "2026-04-26T11:33:53.424Z"
+        },
+        {
+          "status": "Waiting Approval",
+          "changed_by": "u_admin",
+          "timestamp": "2026-04-26T11:34:11.168Z"
+        },
+        {
+          "status": "Waiting Approval",
+          "changed_by": "u_admin",
+          "timestamp": "2026-04-26T11:34:11.815Z"
+        },
+        {
+          "status": "Waiting Approval",
+          "changed_by": "u_admin",
+          "timestamp": "2026-04-26T11:34:12.311Z"
+        },
+        {
+          "status": "Waiting Approval",
+          "changed_by": "u_admin",
+          "timestamp": "2026-04-26T11:34:12.607Z"
+        },
+        {
+          "status": "Approved",
+          "changed_by": "u_admin",
+          "timestamp": "2026-04-26T11:34:13.255Z"
+        },
+        {
+          "status": "Waiting Approval",
+          "changed_by": "u_admin",
+          "timestamp": "2026-04-26T11:34:14.287Z"
+        }
+      ],
+      "created_at": "2026-04-25T18:47:59.436Z",
+      "updated_at": "2026-04-26T11:34:14.287Z"
+    },
+    {
+      "order_id": "ORD-1001",
+      "customer_id": "CUS-1001",
+      "customer_name": "Paramour Studio",
+      "phone_number": "+60123450001",
+      "item_id": "ITM-001",
+      "product_type": "Premium Cap",
+      "quantity": 8,
+      "status": "Approved",
+      "payment_status": "Paid",
+      "tracking_number": "MY123456789",
+      "assigned_staff": "u_staff_1",
+      "notes": "Repeat customer. Black cap with embroidery.",
+      "files": [],
+      "messages": [
+        {
+          "message_id": "MSG-1777142503950-45d2068f6774a",
+          "order_id": "ORD-1001",
+          "message_content": "Your design is ready. Please review here: internal-review/ORD-1001",
+          "type": "auto",
+          "sent_at": "2026-04-25T18:41:43.950Z",
+          "status": "simulated"
+        }
+      ],
+      "timeline": [
+        {
+          "status": "New Order",
+          "changed_by": "u_staff_1",
+          "timestamp": "2026-04-19T18:40:48.360Z"
+        },
+        {
+          "status": "Completed",
+          "changed_by": "u_staff_1",
+          "timestamp": "2026-04-26T01:00:00.000Z"
+        },
+        {
+          "status": "New Order",
+          "changed_by": "u_admin",
+          "timestamp": "2026-04-25T18:41:37.742Z"
+        },
+        {
+          "status": "Designing",
+          "changed_by": "u_admin",
+          "timestamp": "2026-04-25T18:41:39.830Z"
+        },
+        {
+          "status": "Waiting Approval",
+          "changed_by": "u_admin",
+          "timestamp": "2026-04-25T18:41:43.950Z"
+        },
+        {
+          "status": "Approved",
+          "changed_by": "u_admin",
+          "timestamp": "2026-04-25T18:41:49.658Z"
+        }
+      ],
+      "created_at": "2026-04-19T18:40:48.360Z",
+      "updated_at": "2026-04-25T18:41:49.658Z"
+    },
+    {
+      "order_id": "ORD-1002",
+      "customer_id": "CUS-1002",
+      "customer_name": "GZ Collective",
+      "phone_number": "+60123450002",
+      "item_id": "ITM-002",
+      "product_type": "Oversized Tee",
+      "quantity": 12,
+      "status": "Completed",
+      "payment_status": "Deposit",
+      "tracking_number": "",
+      "assigned_staff": "u_staff_1",
+      "notes": "Front print proof approved.",
+      "files": [
+        {
+          "file_url": "front-print-proof.png",
+          "file_type": "design",
+          "uploaded_by": "u_designer_1",
+          "timestamp": "2026-04-23T18:40:48.360Z"
+        }
+      ],
+      "messages": [
+        {
+          "message_id": "MSG-1777142621555-7f300ab0367ef8",
+          "order_id": "ORD-1002",
+          "message_content": "Your design is ready. Please review here: internal-review/ORD-1002",
+          "type": "auto",
+          "sent_at": "2026-04-25T18:43:41.555Z",
+          "status": "simulated"
+        },
+        {
+          "message_id": "MSG-1777142632195-9cf6814c292038",
+          "order_id": "ORD-1002",
+          "message_content": "Your order is ready. Please proceed with payment.",
+          "type": "auto",
+          "sent_at": "2026-04-25T18:43:52.195Z",
+          "status": "simulated"
+        },
+        {
+          "message_id": "MSG-1777142647322-507acb677862b8",
+          "order_id": "ORD-1002",
+          "message_content": "Your order has shipped. Tracking number: pending",
+          "type": "auto",
+          "sent_at": "2026-04-25T18:44:07.322Z",
+          "status": "simulated"
+        },
+        {
+          "message_id": "MSG-1777142694302-cc234a015eccf",
+          "order_id": "ORD-1002",
+          "message_content": "Your order is ready. Please proceed with payment.",
+          "type": "auto",
+          "sent_at": "2026-04-25T18:44:54.302Z",
+          "status": "simulated"
+        },
+        {
+          "message_id": "MSG-1777142698206-2a00af6cb2c028",
+          "order_id": "ORD-1002",
+          "message_content": "Your design is ready. Please review here: internal-review/ORD-1002",
+          "type": "auto",
+          "sent_at": "2026-04-25T18:44:58.206Z",
+          "status": "simulated"
+        },
+        {
+          "message_id": "MSG-1777142702422-c9e6985f8a1c5",
+          "order_id": "ORD-1002",
+          "message_content": "Your order has shipped. Tracking number: pending",
+          "type": "auto",
+          "sent_at": "2026-04-25T18:45:02.422Z",
+          "status": "simulated"
+        },
+        {
+          "message_id": "MSG-1777142738854-4d44875d458358",
+          "order_id": "ORD-1002",
+          "message_content": "hi",
+          "type": "manual",
+          "sent_at": "2026-04-25T18:45:38.854Z",
+          "status": "simulated"
+        }
+      ],
+      "timeline": [
+        {
+          "status": "New Order",
+          "changed_by": "u_staff_1",
+          "timestamp": "2026-04-22T18:40:48.360Z"
+        },
+        {
+          "status": "Printing",
+          "changed_by": "u_staff_1",
+          "timestamp": "2026-04-24T18:40:48.360Z"
+        },
+        {
+          "status": "New Order",
+          "changed_by": "u_admin",
+          "timestamp": "2026-04-25T18:41:34.799Z"
+        },
+        {
+          "status": "Designing",
+          "changed_by": "u_staff_1",
+          "timestamp": "2026-04-25T18:43:02.844Z"
+        },
+        {
+          "status": "New Order",
+          "changed_by": "u_staff_1",
+          "timestamp": "2026-04-25T18:43:16.491Z"
+        },
+        {
+          "status": "Designing",
+          "changed_by": "u_staff_1",
+          "timestamp": "2026-04-25T18:43:18.138Z"
+        },
+        {
+          "status": "New Order",
+          "changed_by": "u_staff_1",
+          "timestamp": "2026-04-25T18:43:26.291Z"
+        },
+        {
+          "status": "Designing",
+          "changed_by": "u_staff_1",
+          "timestamp": "2026-04-25T18:43:27.603Z"
+        },
+        {
+          "status": "New Order",
+          "changed_by": "u_staff_1",
+          "timestamp": "2026-04-25T18:43:33.491Z"
+        },
+        {
+          "status": "Designing",
+          "changed_by": "u_staff_1",
+          "timestamp": "2026-04-25T18:43:34.971Z"
+        },
+        {
+          "status": "Waiting Approval",
+          "changed_by": "u_staff_1",
+          "timestamp": "2026-04-25T18:43:41.555Z"
+        },
+        {
+          "status": "Approved",
+          "changed_by": "u_staff_1",
+          "timestamp": "2026-04-25T18:43:43.707Z"
+        },
+        {
+          "status": "Printing",
+          "changed_by": "u_staff_1",
+          "timestamp": "2026-04-25T18:43:49.275Z"
+        },
+        {
+          "status": "Ready for Payment",
+          "changed_by": "u_staff_1",
+          "timestamp": "2026-04-25T18:43:52.195Z"
+        },
+        {
+          "status": "Paid",
+          "changed_by": "u_staff_1",
+          "timestamp": "2026-04-25T18:43:59.482Z"
+        },
+        {
+          "status": "Shipped",
+          "changed_by": "u_staff_1",
+          "timestamp": "2026-04-25T18:44:07.322Z"
+        },
+        {
+          "status": "Approved",
+          "changed_by": "u_staff_1",
+          "timestamp": "2026-04-25T18:44:49.375Z"
+        },
+        {
+          "status": "Ready for Payment",
+          "changed_by": "u_staff_1",
+          "timestamp": "2026-04-25T18:44:54.302Z"
+        },
+        {
+          "status": "Approved",
+          "changed_by": "u_staff_1",
+          "timestamp": "2026-04-25T18:44:55.374Z"
+        },
+        {
+          "status": "Waiting Approval",
+          "changed_by": "u_staff_1",
+          "timestamp": "2026-04-25T18:44:58.206Z"
+        },
+        {
+          "status": "Shipped",
+          "changed_by": "u_staff_1",
+          "timestamp": "2026-04-25T18:45:02.422Z"
+        },
+        {
+          "status": "Completed",
+          "changed_by": "u_staff_1",
+          "timestamp": "2026-04-25T18:45:08.457Z"
+        }
+      ],
+      "created_at": "2026-04-22T18:40:48.360Z",
+      "updated_at": "2026-04-25T18:45:08.457Z"
+    },
+    {
+      "order_id": "ORD-1003",
+      "customer_id": "CUS-1003",
+      "customer_name": "ISCAMU",
+      "phone_number": "+60123450003",
+      "item_id": "ITM-003",
+      "product_type": "Embroidery Patch",
+      "quantity": 40,
+      "status": "Waiting Approval",
+      "payment_status": "Unpaid",
+      "tracking_number": "",
+      "assigned_staff": "u_designer_1",
+      "notes": "Waiting customer approval on patch mockup.",
+      "files": [
+        {
+          "file_url": "patch-reference.jpg",
+          "file_type": "reference",
+          "uploaded_by": "u_staff_1",
+          "timestamp": "2026-04-07T18:40:48.360Z"
+        }
+      ],
+      "messages": [],
+      "timeline": [
+        {
+          "status": "New Order",
+          "changed_by": "u_staff_1",
+          "timestamp": "2026-04-07T18:40:48.360Z"
+        },
+        {
+          "status": "Waiting Approval",
+          "changed_by": "u_designer_1",
+          "timestamp": "2026-04-09T18:40:48.360Z"
+        }
+      ],
+      "created_at": "2026-04-07T18:40:48.360Z",
+      "updated_at": "2026-04-09T18:40:48.360Z"
+    },
+    {
+      "order_id": "ORD-1004",
+      "customer_id": "CUS-1004",
+      "customer_name": "Rex Subang",
+      "phone_number": "+60123450004",
+      "item_id": "ITM-001",
+      "product_type": "Premium Cap",
+      "quantity": 5,
+      "status": "Designing",
+      "payment_status": "Unpaid",
+      "tracking_number": "",
+      "assigned_staff": "u_designer_1",
+      "notes": "Logo needs cleanup before mockup.",
+      "files": [],
+      "messages": [],
+      "timeline": [
+        {
+          "status": "New Order",
+          "changed_by": "u_staff_1",
+          "timestamp": "2026-04-23T18:40:48.360Z"
+        },
+        {
+          "status": "Designing",
+          "changed_by": "u_designer_1",
+          "timestamp": "2026-04-24T18:40:48.360Z"
+        }
+      ],
+      "created_at": "2026-04-23T18:40:48.360Z",
+      "updated_at": "2026-04-24T18:40:48.360Z"
+    }
+  ]
+}

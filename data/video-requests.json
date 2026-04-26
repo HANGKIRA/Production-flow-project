@@ -1,0 +1,21 @@
+[
+  {
+    "request_id": "VID-1001",
+    "title": "Cap packing TikTok",
+    "raw_footage_url": "",
+    "sample_video_link": "https://www.tiktok.com/",
+    "caption": "Custom caps packed and ready.",
+    "selected_song": "Bright Pop Bounce",
+    "font_style": "Bold captions",
+    "assigned_designer": "u_designer_1",
+    "status": "Editing",
+    "edit_plan": "the video must have caption of 14cm tiffin , come with 2 layer custom , buy now at beg kuning , ship in 24 hours",
+    "final_video_url": "",
+    "notes": "",
+    "created_by": "u_admin",
+    "created_at": "2026-04-25T16:43:33.281Z",
+    "updated_at": "2026-04-26T17:26:38.718Z",
+    "render_status": "failed",
+    "render_error": "Upload raw footage before rendering"
+  }
+]
