@@ -13,6 +13,9 @@ const state = {
   expenses: [],
   expenseSummary: null,
   expenseAdmins: [],
+  expenseSheet: null,
+  expenseSyncTimer: null,
+  activeExpenseMonth: null,
   hrMe: null,
   hrOfficeNetwork: false,
   adminHr: null,
@@ -75,6 +78,10 @@ function clearSession() {
   state.expenses = [];
   state.expenseSummary = null;
   state.expenseAdmins = [];
+  state.expenseSheet = null;
+  state.activeExpenseMonth = null;
+  if (state.expenseSyncTimer) clearInterval(state.expenseSyncTimer);
+  state.expenseSyncTimer = null;
   state.hrMe = null;
   state.hrOfficeNetwork = false;
   state.adminHr = null;
@@ -175,6 +182,8 @@ async function load() {
     state.expenses = expenses.expenses;
     state.expenseSummary = expenses.summary;
     state.expenseAdmins = expenses.admins;
+    state.expenseSheet = expenses.sheet;
+    state.activeExpenseMonth ??= new Date().toISOString().slice(0, 7);
     state.adminHr = adminHr;
     state.closings = closings.closings;
     state.activeClosingMonth ??= state.closings[0]?.month ?? new Date().toISOString().slice(0, 7);
@@ -184,7 +193,12 @@ async function load() {
 }
 
 function renderShell() {
+  if (state.expenseSyncTimer) {
+    clearInterval(state.expenseSyncTimer);
+    state.expenseSyncTimer = null;
+  }
   const admin = state.user.role === "ADMIN";
+  const designer = state.user.role === "DESIGNER";
   const videoAccess = state.user.role === "ADMIN" || state.user.role === "DESIGNER";
   app.innerHTML = `
     <section class="layout">
@@ -193,12 +207,11 @@ function renderShell() {
         <div class="role-badge">${state.user.role}</div>
         <nav class="nav">
           ${admin ? `<button data-view="dashboard">Financial Dashboard</button>` : ""}
-          ${admin ? `<button data-view="expenses">Expenses</button>` : ""}
-          ${admin ? `<button data-view="closing">Monthly Closing</button>` : ""}
+          ${admin ? `<button data-view="monthlyClosing">Monthly Closing</button>` : ""}
           ${admin ? `<button data-view="whatsapp">WhatsApp Messages</button>` : ""}
-          ${admin ? `<button data-view="hr">HR</button>` : ""}
           ${admin ? `<button data-view="items">Products & Costs</button>` : ""}
           ${admin ? `<button data-view="financialOrders">Order Financials</button>` : ""}
+          ${designer ? `<button data-view="designUpload">Design Upload Portal</button>` : ""}
           ${videoAccess ? `<button data-view="videoStudio">Video Studio</button>` : ""}
           ${!admin ? `<button data-view="clock">Clock In/Out</button>` : ""}
           <button data-view="workflow">Production Workflow</button>
@@ -212,7 +225,7 @@ function renderShell() {
   `;
 
   document.querySelectorAll("[data-view]").forEach((button) => {
-    button.classList.toggle("active", button.dataset.view === state.view);
+    button.classList.toggle("active", isActiveNavView(button.dataset.view));
     button.addEventListener("click", () => {
       state.view = button.dataset.view;
       renderShell();
@@ -222,12 +235,20 @@ function renderShell() {
   renderView();
 }
 
+function isActiveNavView(view) {
+  return view === state.view || (view === "monthlyClosing" && ["monthlyClosing", "closing", "expenses", "hr"].includes(state.view));
+}
+
 function renderView() {
-  if (state.user.role !== "ADMIN" && !["workflow", "clock"].includes(state.view)) {
+  const nonAdminViews = state.user.role === "DESIGNER"
+    ? ["workflow", "clock", "videoStudio", "designUpload"]
+    : ["workflow", "clock"];
+  if (state.user.role !== "ADMIN" && !nonAdminViews.includes(state.view)) {
     state.view = state.user.role === "DESIGNER" ? "videoStudio" : "clock";
   }
 
   if (state.view === "dashboard") renderDashboard();
+  if (state.view === "monthlyClosing") renderMonthlyClosingDashboard();
   if (state.view === "expenses") renderExpenses();
   if (state.view === "closing") renderClosing();
   if (state.view === "whatsapp") renderWhatsapp();
@@ -235,8 +256,48 @@ function renderView() {
   if (state.view === "clock") renderClock();
   if (state.view === "items") renderItems();
   if (state.view === "financialOrders") renderFinancialOrders();
+  if (state.view === "designUpload") renderDesignUploadPortal();
   if (state.view === "videoStudio") renderVideoStudio();
   if (state.view === "workflow") renderWorkflow();
+}
+
+function renderMonthlyClosingDashboard() {
+  const closing = activeClosing();
+  const closingCalc = calcClosingDraft(closing);
+  const expensesTotal = state.expenseSummary?.month ?? 0;
+  const hr = state.adminHr;
+  document.querySelector("#view").innerHTML = `
+    <header class="topbar">
+      <div class="page-title">
+        <h1>Monthly Closing</h1>
+        <p>Month-end operations, expenses, and HR.</p>
+      </div>
+    </header>
+    <section class="monthly-hub">
+      <button class="monthly-hub-button" data-monthly-view="closing">
+        <span>Monthly Closing</span>
+        <strong>${money.format(closingCalc.gain_profit)}</strong>
+        <small>${closing.month}</small>
+      </button>
+      <button class="monthly-hub-button" data-monthly-view="expenses">
+        <span>Expenses</span>
+        <strong>${money.format(expensesTotal)}</strong>
+        <small>This month</small>
+      </button>
+      <button class="monthly-hub-button" data-monthly-view="hr">
+        <span>HR</span>
+        <strong>${hr?.total_month_hours ?? 0} hrs</strong>
+        <small>${hr?.active_now ?? 0} clocked in</small>
+      </button>
+    </section>
+  `;
+
+  document.querySelectorAll("[data-monthly-view]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.view = button.dataset.monthlyView;
+      renderShell();
+    });
+  });
 }
 
 function renderDashboard() {
@@ -345,8 +406,41 @@ function blankClosing(month = new Date().toISOString().slice(0, 7)) {
   };
 }
 
+function latestClosingTemplate(month) {
+  const previousClosings = state.closings
+    .filter((closing) => closing.month && closing.month !== month)
+    .sort((a, b) => b.month.localeCompare(a.month));
+  return previousClosings[0] ?? null;
+}
+
+function blankClosingFromTemplate(month = new Date().toISOString().slice(0, 7)) {
+  const template = latestClosingTemplate(month);
+  if (!template) return blankClosing(month);
+  return {
+    ...blankClosing(month),
+    expenses: (template.expenses ?? []).map((item) => ({ label: item.label ?? "", amount: 0 })),
+    stock_expenses: (template.stock_expenses ?? []).map((item) => ({ label: item.label ?? "", amount: 0, note: item.note ?? "" })),
+    shopee_cash_out: (template.shopee_cash_out ?? []).map((item) => ({ label: item.label ?? "", amount: 0 })),
+    shopee_sales: (template.shopee_sales ?? []).map((item) => ({ label: item.label ?? "", amount: 0 })),
+    note: template.note ? String(template.note) : ""
+  };
+}
+
+function closingWithTemplateRows(closing) {
+  const template = blankClosingFromTemplate(closing.month);
+  return {
+    ...template,
+    ...closing,
+    expenses: closing.expenses?.length ? closing.expenses : template.expenses,
+    stock_expenses: closing.stock_expenses?.length ? closing.stock_expenses : template.stock_expenses,
+    shopee_cash_out: closing.shopee_cash_out?.length ? closing.shopee_cash_out : template.shopee_cash_out,
+    shopee_sales: closing.shopee_sales?.length ? closing.shopee_sales : template.shopee_sales
+  };
+}
+
 function activeClosing() {
-  return state.closings.find((closing) => closing.month === state.activeClosingMonth) ?? blankClosing(state.activeClosingMonth);
+  const existing = state.closings.find((closing) => closing.month === state.activeClosingMonth);
+  return existing ? closingWithTemplateRows(existing) : blankClosingFromTemplate(state.activeClosingMonth);
 }
 
 function calcClosingDraft(closing) {
@@ -375,9 +469,41 @@ function calcClosingDraft(closing) {
   };
 }
 
+function applyLinkedStockExpenses(closing) {
+  const linkedNames = ["YH", "JH", "ZX"];
+  const monthSummary = expenseMonthSummary(expensesForMonth(closing.month));
+  const totalsByName = new Map(monthSummary.by_admin.map((row) => [String(row.label).toUpperCase(), row.total]));
+  const linkedClosing = structuredClone(closing);
+  const usedIndexes = new Set();
+
+  for (const name of linkedNames) {
+    if (!totalsByName.has(name)) continue;
+    let index = linkedClosing.stock_expenses.findIndex((item, candidateIndex) => (
+      !usedIndexes.has(candidateIndex) && String(item.label || "").trim().toUpperCase() === name
+    ));
+    if (index < 0) {
+      index = linkedClosing.stock_expenses.findIndex((item, candidateIndex) => (
+        !usedIndexes.has(candidateIndex) && String(item.label || "").trim().toUpperCase().startsWith(name)
+      ));
+    }
+    if (index >= 0) {
+      linkedClosing.stock_expenses[index] = {
+        ...linkedClosing.stock_expenses[index],
+        amount: totalsByName.get(name),
+        note: linkedClosing.stock_expenses[index].note || "Linked from Expenses"
+      };
+      usedIndexes.add(index);
+    } else {
+      linkedClosing.stock_expenses.push({ label: name, amount: totalsByName.get(name), note: "Linked from Expenses" });
+    }
+  }
+
+  return linkedClosing;
+}
+
 function renderClosing() {
-  const closing = structuredClone(activeClosing());
-  const calc = closing.calculations ?? calcClosingDraft(closing);
+  const closing = applyLinkedStockExpenses(structuredClone(activeClosing()));
+  const calc = calcClosingDraft(closing);
   document.querySelector("#view").innerHTML = `
     <header class="topbar">
       <div class="page-title">
@@ -392,32 +518,33 @@ function renderClosing() {
       </label>
       <button id="newClosing">New Month</button>
       <button id="saveClosing">Save Closing</button>
+      <button id="closingPdf">Generate PDF</button>
     </section>
     <section class="grid kpis" style="margin-top:16px">
-      ${kpi("Total Expenses", money.format(calc.total_expenses))}
-      ${kpi("Cash Out", money.format(calc.shopee_cash_out_total))}
-      ${kpi("Total Sales", money.format(calc.offline_plus_shopee_sales))}
-      ${kpi("Gain Profit", money.format(calc.gain_profit))}
+      ${closingKpi("Total Expenses", money.format(calc.total_expenses), "total_expenses")}
+      ${closingKpi("Cash Out", money.format(calc.shopee_cash_out_total), "shopee_cash_out_total")}
+      ${closingKpi("Total Sales", money.format(calc.offline_plus_shopee_sales), "offline_plus_shopee_sales")}
+      ${closingKpi("Gain Profit", money.format(calc.gain_profit), "gain_profit")}
     </section>
     <section class="grid kpis" style="margin-top:16px">
-      ${kpi("Bank Balance", money.format(closing.bank_balance || 0))}
-      ${kpi("New Balance", money.format(calc.bank_new_balance))}
-      ${kpi("Shopee Sales", money.format(calc.shopee_sales_total))}
-      ${kpi("Collected Sales", money.format(calc.collected_sales))}
+      ${closingKpi("Bank Balance", money.format(closing.bank_balance || 0), "bank_balance")}
+      ${closingKpi("New Balance", money.format(calc.bank_new_balance), "bank_new_balance")}
+      ${closingKpi("Shopee Sales", money.format(calc.shopee_sales_total), "shopee_sales_total")}
+      ${closingKpi("Collected Sales", money.format(calc.collected_sales), "collected_sales")}
     </section>
     <section class="closing-grid" style="margin-top:16px">
-      ${closingSection("Expenses", "expenses", closing.expenses, calc.expenses_total)}
-      ${closingSection("Expenses Stock Amount", "stock_expenses", closing.stock_expenses, calc.stock_total, true)}
+      ${closingSection("Expenses", "expenses", closing.expenses, calc.expenses_total, "expenses_total")}
+      ${closingSection("Expenses Stock Amount", "stock_expenses", closing.stock_expenses, calc.stock_total, "stock_total", true)}
       ${singleFields(closing)}
-      ${closingSection("Cash Out", "shopee_cash_out", closing.shopee_cash_out, calc.shopee_cash_out_total)}
-      ${closingSection("Sales", "shopee_sales", closing.shopee_sales, calc.shopee_sales_total)}
+      ${closingSection("Cash Out", "shopee_cash_out", closing.shopee_cash_out, calc.shopee_cash_out_total, "shopee_cash_out_total")}
+      ${closingSection("Sales", "shopee_sales", closing.shopee_sales, calc.shopee_sales_total, "shopee_sales_total")}
       <article class="card closing-results">
         <h2 class="section-title">Calculated Results</h2>
-        ${resultRow("Offline + Shopee Sales", calc.offline_plus_shopee_sales)}
-        ${resultRow("Total Expenses", calc.total_expenses)}
-        ${resultRow("Shopee Cash Out", calc.shopee_cash_out_total)}
-        ${resultRow("Gain Profit", calc.gain_profit)}
-        ${resultRow("Bank New Balance", calc.bank_new_balance)}
+        ${resultRow("Offline + Shopee Sales", calc.offline_plus_shopee_sales, "offline_plus_shopee_sales")}
+        ${resultRow("Total Expenses", calc.total_expenses, "total_expenses")}
+        ${resultRow("Shopee Cash Out", calc.shopee_cash_out_total, "shopee_cash_out_total")}
+        ${resultRow("Gain Profit", calc.gain_profit, "gain_profit")}
+        ${resultRow("Bank New Balance", calc.bank_new_balance, "bank_new_balance")}
       </article>
     </section>
   `;
@@ -430,7 +557,7 @@ function renderClosing() {
   document.querySelector("#newClosing").addEventListener("click", () => {
     state.activeClosingMonth = new Date().toISOString().slice(0, 7);
     if (!state.closings.some((item) => item.month === state.activeClosingMonth)) {
-      state.closings.unshift(blankClosing(state.activeClosingMonth));
+      state.closings.unshift(blankClosingFromTemplate(state.activeClosingMonth));
     }
     renderClosing();
   });
@@ -444,6 +571,10 @@ function renderClosing() {
     });
   });
 
+  document.querySelectorAll("[data-section], [data-closing-single]").forEach((input) => {
+    input.addEventListener("input", updateClosingTotals);
+  });
+
   document.querySelector("#saveClosing").addEventListener("click", async () => {
     await api("/api/admin/monthly-closings", {
       method: "POST",
@@ -451,6 +582,39 @@ function renderClosing() {
     });
     state.view = "closing";
     await load();
+  });
+
+  document.querySelector("#closingPdf").addEventListener("click", () => {
+    generateClosingPdf(readClosingForm());
+  });
+}
+
+function closingKpi(label, value, key) {
+  return `<article class="card"><div class="kpi-label">${label}</div><div class="kpi-value" data-closing-kpi="${key}">${value}</div></article>`;
+}
+
+function updateClosingTotals() {
+  const closing = applyLinkedStockExpenses(readClosingForm());
+  const calc = calcClosingDraft(closing);
+  saveClosingDraft(closing);
+
+  const totals = {
+    expenses_total: calc.expenses_total,
+    stock_total: calc.stock_total,
+    total_expenses: calc.total_expenses,
+    shopee_cash_out_total: calc.shopee_cash_out_total,
+    shopee_sales_total: calc.shopee_sales_total,
+    offline_plus_shopee_sales: calc.offline_plus_shopee_sales,
+    collected_sales: calc.collected_sales,
+    gain_profit: calc.gain_profit,
+    bank_new_balance: calc.bank_new_balance,
+    bank_balance: Number(closing.bank_balance || 0)
+  };
+
+  Object.entries(totals).forEach(([key, value]) => {
+    document.querySelectorAll(`[data-closing-total="${key}"], [data-closing-result="${key}"], [data-closing-kpi="${key}"]`).forEach((element) => {
+      element.textContent = money.format(value);
+    });
   });
 }
 
@@ -460,7 +624,7 @@ function saveClosingDraft(closing) {
   else state.closings.unshift({ ...closing, calculations: calcClosingDraft(closing) });
 }
 
-function closingSection(title, key, rows, total, hasNote = false) {
+function closingSection(title, key, rows, total, totalKey, hasNote = false) {
   return `
     <article class="card closing-section">
       <div class="section-head">
@@ -474,7 +638,7 @@ function closingSection(title, key, rows, total, hasNote = false) {
           ${hasNote ? `<input data-section="${key}" data-index="${index}" data-field="note" value="${row.note ?? ""}" placeholder="Note" />` : ""}
         </div>
       `).join("")}
-      <div class="section-total"><span>Total</span><strong>${money.format(total)}</strong></div>
+      <div class="section-total"><span>Total</span><strong data-closing-total="${totalKey}">${money.format(total)}</strong></div>
     </article>
   `;
 }
@@ -492,8 +656,169 @@ function singleFields(closing) {
   `;
 }
 
-function resultRow(label, amount) {
-  return `<div class="result-row"><span>${label}</span><strong>${money.format(amount)}</strong></div>`;
+function resultRow(label, amount, key) {
+  return `<div class="result-row"><span>${label}</span><strong data-closing-result="${key}">${money.format(amount)}</strong></div>`;
+}
+
+function reportRows(rows, columns) {
+  return rows.map((row) => `
+    <tr>${columns.map((column) => `<td>${escapeHtml(column.value(row))}</td>`).join("")}</tr>
+  `).join("");
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function printPdfReport(title, body) {
+  const lines = htmlReportToLines(body);
+  const blob = createPdfBlob(title, lines);
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${title.replace(/[^a-z0-9-]+/gi, "-").replace(/^-|-$/g, "")}.pdf`;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+function htmlReportToLines(html) {
+  const container = document.createElement("div");
+  container.innerHTML = html
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/(h1|h2|p|div|tr|table)>/gi, "\n")
+    .replace(/<\/t[hd]>/gi, "    ");
+  return (container.textContent || "")
+    .split(/\n+/)
+    .map((line) => line.replace(/\s+/g, " ").trim())
+    .filter(Boolean);
+}
+
+function pdfEscape(value) {
+  return String(value).replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
+}
+
+function wrapPdfLine(line, maxLength = 92) {
+  const words = String(line).split(" ");
+  const lines = [];
+  let current = "";
+  for (const word of words) {
+    if ((current + " " + word).trim().length > maxLength) {
+      if (current) lines.push(current);
+      current = word;
+    } else {
+      current = `${current} ${word}`.trim();
+    }
+  }
+  if (current) lines.push(current);
+  return lines;
+}
+
+function createPdfBlob(title, lines) {
+  const pageHeight = 842;
+  const margin = 42;
+  const lineHeight = 15;
+  const usableLines = Math.floor((pageHeight - margin * 2) / lineHeight);
+  const wrapped = [title, "", ...lines].flatMap((line) => line ? wrapPdfLine(line) : [""]);
+  const pages = [];
+  for (let index = 0; index < wrapped.length; index += usableLines) {
+    pages.push(wrapped.slice(index, index + usableLines));
+  }
+
+  const objects = [];
+  const addObject = (content) => {
+    objects.push(content);
+    return objects.length;
+  };
+  const fontId = addObject("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>");
+  const pageIds = [];
+
+  for (const pageLines of pages) {
+    const stream = [
+      "BT",
+      "/F1 10 Tf",
+      `${margin} ${pageHeight - margin} Td`,
+      ...pageLines.flatMap((line, index) => [
+        index === 0 ? "" : `0 -${lineHeight} Td`,
+        `(${pdfEscape(line)}) Tj`
+      ]).filter(Boolean),
+      "ET"
+    ].join("\n");
+    const streamId = addObject(`<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`);
+    pageIds.push(addObject(`<< /Type /Page /Parent PAGES_PARENT 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 ${fontId} 0 R >> >> /Contents ${streamId} 0 R >>`));
+  }
+
+  const pagesId = objects.length + 1;
+  for (let index = 0; index < objects.length; index += 1) {
+    objects[index] = objects[index].replaceAll("PAGES_PARENT", String(pagesId));
+  }
+  addObject(`<< /Type /Pages /Kids [${pageIds.map((id) => `${id} 0 R`).join(" ")}] /Count ${pageIds.length} >>`);
+  const catalogId = addObject(`<< /Type /Catalog /Pages ${pagesId} 0 R >>`);
+
+  let pdf = "%PDF-1.4\n";
+  const offsets = [0];
+  objects.forEach((object, index) => {
+    offsets.push(pdf.length);
+    pdf += `${index + 1} 0 obj\n${object}\nendobj\n`;
+  });
+  const xrefOffset = pdf.length;
+  pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+  for (let index = 1; index <= objects.length; index += 1) {
+    pdf += `${String(offsets[index]).padStart(10, "0")} 00000 n \n`;
+  }
+  pdf += `trailer\n<< /Size ${objects.length + 1} /Root ${catalogId} 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
+  return new Blob([pdf], { type: "application/pdf" });
+}
+
+function sectionTable(title, rows, hasNote = false) {
+  return `
+    <h2>${escapeHtml(title)}</h2>
+    <table>
+      <thead><tr><th>Name</th><th>Amount</th>${hasNote ? "<th>Note</th>" : ""}</tr></thead>
+      <tbody>
+        ${rows.map((row) => `
+          <tr>
+            <td>${escapeHtml(row.label)}</td>
+            <td>${money.format(row.amount || 0)}</td>
+            ${hasNote ? `<td>${escapeHtml(row.note || "")}</td>` : ""}
+          </tr>
+        `).join("") || `<tr><td colspan="${hasNote ? 3 : 2}">No rows</td></tr>`}
+      </tbody>
+    </table>
+  `;
+}
+
+function generateClosingPdf(closing) {
+  const calc = calcClosingDraft(closing);
+  printPdfReport(`Monthly Closing ${closing.month}`, `
+    <h1>Monthly Closing</h1>
+    <p>${escapeHtml(closing.month)}</p>
+    <div class="summary">
+      <div class="box"><span>Total Expenses</span><strong>${money.format(calc.total_expenses)}</strong></div>
+      <div class="box"><span>Cash Out</span><strong>${money.format(calc.shopee_cash_out_total)}</strong></div>
+      <div class="box"><span>Total Sales</span><strong>${money.format(calc.offline_plus_shopee_sales)}</strong></div>
+      <div class="box"><span>Gain Profit</span><strong>${money.format(calc.gain_profit)}</strong></div>
+    </div>
+    ${sectionTable("Expenses", closing.expenses)}
+    ${sectionTable("Expenses Stock Amount", closing.stock_expenses, true)}
+    ${sectionTable("Cash Out", closing.shopee_cash_out)}
+    ${sectionTable("Sales", closing.shopee_sales)}
+    <h2>Offline & Bank</h2>
+    <table>
+      <tbody>
+        <tr><td>Offline Haven't Pay</td><td>${money.format(closing.offline_unpaid || 0)}</td></tr>
+        <tr><td>Offline Sales</td><td>${money.format(closing.offline_sales || 0)}</td></tr>
+        <tr><td>Offline Half Deposit</td><td>${money.format(closing.offline_half_deposit || 0)}</td></tr>
+        <tr><td>Bank Balance</td><td>${money.format(closing.bank_balance || 0)}</td></tr>
+        <tr><td>Bank New Balance</td><td>${money.format(calc.bank_new_balance)}</td></tr>
+      </tbody>
+    </table>
+  `);
 }
 
 function readClosingForm() {
@@ -516,7 +841,7 @@ function readClosingForm() {
     closing[key] = key === "note" ? input.value : Number(input.value || 0);
   });
 
-  return closing;
+  return applyLinkedStockExpenses(closing);
 }
 
 function formatDateTime(value) {
@@ -763,7 +1088,15 @@ function renderHr() {
 }
 
 function renderExpenses() {
+  if (state.expenseSyncTimer) {
+    clearInterval(state.expenseSyncTimer);
+    state.expenseSyncTimer = null;
+  }
+  state.activeExpenseMonth ??= new Date().toISOString().slice(0, 7);
   const summary = state.expenseSummary;
+  const sheet = state.expenseSheet ?? {};
+  const monthExpenses = expensesForMonth(state.activeExpenseMonth);
+  const monthSummary = expenseMonthSummary(monthExpenses);
   document.querySelector("#view").innerHTML = `
     <header class="topbar">
       <div class="page-title">
@@ -771,11 +1104,22 @@ function renderExpenses() {
         <p>Stock purchases, delivery, ads, deposits, and operating costs.</p>
       </div>
     </header>
+    <section class="card closing-toolbar">
+      <label>
+        Month
+        <input id="expenseMonth" type="month" value="${state.activeExpenseMonth}" />
+      </label>
+      <button id="prevExpenseMonth">Previous Month</button>
+      <button id="nextExpenseMonth">Next Month</button>
+      <button id="saveExpenseMonth">Save Monthly Expenses</button>
+      <button id="expensesPdf">Generate PDF</button>
+      <div class="form-message" id="expenseMonthMessage"></div>
+    </section>
     <section class="grid kpis">
-      ${kpi("Total Expenses", money.format(summary.total))}
-      ${kpi("This Month", money.format(summary.month))}
-      ${kpi("Today", money.format(summary.today))}
-      ${kpi("Entries", summary.count)}
+      ${kpi("Selected Month", money.format(monthSummary.total))}
+      ${kpi("All Expenses", money.format(summary.total))}
+      ${kpi("Month Entries", monthSummary.count)}
+      ${kpi("Sheet Rows", monthExpenses.filter((expense) => expense.source === "google_sheet").length)}
     </section>
     <section class="grid two-col" style="margin-top:16px">
       <article class="card">
@@ -787,7 +1131,7 @@ function renderExpenses() {
             ${state.expenseAdmins.map((admin) => `<option value="${admin.id}">${admin.name}</option>`).join("")}
           </select>
           <input name="account" placeholder="Account / bank / cash" value="paramour bank" required />
-          <input name="expense_date" type="date" value="${new Date().toISOString().slice(0, 10)}" required />
+          <input name="expense_date" type="date" value="${expenseDefaultDate(state.activeExpenseMonth)}" required />
           <input name="note" placeholder="Note" />
           <button type="submit">Save Expense</button>
         </form>
@@ -797,14 +1141,28 @@ function renderExpenses() {
         <div class="breakdown">
           <div>
             <h3>By admin</h3>
-            ${summary.by_admin.map((row) => breakdownRow(row.label, row.total, row.count)).join("")}
+            ${monthSummary.by_admin.map((row) => breakdownRow(row.label, row.total, row.count)).join("") || "<p>No expenses in this month</p>"}
           </div>
           <div>
             <h3>By account</h3>
-            ${summary.by_account.map((row) => breakdownRow(row.label, row.total, row.count)).join("")}
+            ${monthSummary.by_account.map((row) => breakdownRow(row.label, row.total, row.count)).join("") || "<p>No expenses in this month</p>"}
           </div>
         </div>
       </article>
+    </section>
+    <section class="card sheet-sync-card" style="margin-top:16px">
+      <div class="section-head">
+        <h2 class="section-title">Google Sheet Sync</h2>
+        <span class="sync-status">${sheet.last_synced_at ? `Last synced ${formatDateTime(sheet.last_synced_at)}` : "Not synced yet"}</span>
+      </div>
+      <form class="sheet-sync-form" id="sheetSyncForm">
+        <input name="sheet_url" placeholder="Paste Google Sheet URL or published CSV URL" value="${sheet.sheet_url || ""}" />
+        <button type="submit">Sync Now</button>
+      </form>
+      <p class="sheet-sync-help">Rows from the sheet replace previous Google Sheet rows in this list. Manual expenses stay here.</p>
+      <div class="form-message ${sheet.last_error ? "error-text" : ""}" id="sheetSyncMessage">
+        ${sheet.last_error ? sheet.last_error : sheet.last_count ? `${sheet.last_count} sheet rows connected.` : ""}
+      </div>
     </section>
     <section class="card" style="margin-top:16px">
       <h2 class="section-title">Expense List</h2>
@@ -812,7 +1170,7 @@ function renderExpenses() {
         <table>
           <thead><tr><th>Date</th><th>Name of cost</th><th>Total cost</th><th>Admin</th><th>Account</th><th>Note</th><th></th></tr></thead>
           <tbody>
-            ${state.expenses.map((expense) => `
+            ${monthExpenses.map((expense) => `
               <tr>
                 <td>${new Date(expense.expense_date).toLocaleDateString("en-MY")}</td>
                 <td>${expense.name}</td>
@@ -822,12 +1180,36 @@ function renderExpenses() {
                 <td>${expense.note || ""}</td>
                 <td><button class="text-button danger" data-delete-expense="${expense.expense_id}">Delete</button></td>
               </tr>
-            `).join("")}
+            `).join("") || `<tr><td colspan="7">No expenses saved for this month</td></tr>`}
           </tbody>
         </table>
       </div>
     </section>
   `;
+
+  document.querySelector("#expenseMonth").addEventListener("change", (event) => {
+    state.activeExpenseMonth = event.target.value;
+    renderExpenses();
+  });
+
+  document.querySelector("#prevExpenseMonth").addEventListener("click", () => {
+    state.activeExpenseMonth = shiftMonth(state.activeExpenseMonth, -1);
+    renderExpenses();
+  });
+
+  document.querySelector("#nextExpenseMonth").addEventListener("click", () => {
+    state.activeExpenseMonth = shiftMonth(state.activeExpenseMonth, 1);
+    renderExpenses();
+  });
+
+  document.querySelector("#saveExpenseMonth").addEventListener("click", async () => {
+    const message = document.querySelector("#expenseMonthMessage");
+    if (message) message.textContent = "Monthly expenses saved.";
+  });
+
+  document.querySelector("#expensesPdf").addEventListener("click", () => {
+    generateExpensesPdf(state.activeExpenseMonth, monthExpenses, monthSummary);
+  });
 
   document.querySelector("#expenseForm").addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -840,6 +1222,18 @@ function renderExpenses() {
     await load();
   });
 
+  document.querySelector("#sheetSyncForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    await syncExpensesSheet(String(form.get("sheet_url") || "").trim());
+  });
+
+  if (state.expenseSheet?.sheet_url) {
+    state.expenseSyncTimer = setInterval(() => {
+      if (state.view === "expenses") syncExpensesSheet(state.expenseSheet.sheet_url, { silent: true });
+    }, 60000);
+  }
+
   document.querySelectorAll("[data-delete-expense]").forEach((button) => {
     button.addEventListener("click", async () => {
       await api(`/api/admin/expenses/${encodeURIComponent(button.dataset.deleteExpense)}`, {
@@ -849,6 +1243,103 @@ function renderExpenses() {
       await load();
     });
   });
+}
+
+function expensesForMonth(month) {
+  return state.expenses.filter((expense) => String(expense.expense_date || "").slice(0, 7) === month);
+}
+
+function expenseDefaultDate(month) {
+  const today = new Date().toISOString().slice(0, 10);
+  return today.startsWith(month) ? today : `${month}-01`;
+}
+
+function shiftMonth(month, offset) {
+  const [year, monthIndex] = String(month || new Date().toISOString().slice(0, 7)).split("-").map(Number);
+  const totalMonths = year * 12 + (monthIndex - 1) + offset;
+  const nextYear = Math.floor(totalMonths / 12);
+  const nextMonth = (totalMonths % 12) + 1;
+  return `${nextYear}-${String(nextMonth).padStart(2, "0")}`;
+}
+
+function expenseMonthSummary(records) {
+  const byAdmin = new Map();
+  const byAccount = new Map();
+  for (const expense of records) {
+    addExpenseBucket(byAdmin, expense.purchased_by, expense.purchaser_name, expense.amount);
+    addExpenseBucket(byAccount, expense.account, expense.account, expense.amount);
+  }
+  return {
+    total: records.reduce((sum, expense) => Math.round((sum + Number(expense.amount || 0)) * 100) / 100, 0),
+    count: records.length,
+    by_admin: [...byAdmin.values()].sort((a, b) => b.total - a.total),
+    by_account: [...byAccount.values()].sort((a, b) => b.total - a.total)
+  };
+}
+
+function addExpenseBucket(map, key, label, amount) {
+  const existing = map.get(key) ?? { key, label, total: 0, count: 0 };
+  existing.total = Math.round((existing.total + Number(amount || 0)) * 100) / 100;
+  existing.count += 1;
+  map.set(key, existing);
+}
+
+function generateExpensesPdf(month, records, summary) {
+  printPdfReport(`Expenses ${month}`, `
+    <h1>Expenses</h1>
+    <p>${escapeHtml(month)}</p>
+    <div class="summary">
+      <div class="box"><span>Selected Month</span><strong>${money.format(summary.total)}</strong></div>
+      <div class="box"><span>Entries</span><strong>${summary.count}</strong></div>
+      <div class="box"><span>Admins</span><strong>${summary.by_admin.length}</strong></div>
+      <div class="box"><span>Accounts</span><strong>${summary.by_account.length}</strong></div>
+    </div>
+    <h2>Breakdown By Admin</h2>
+    <table>
+      <thead><tr><th>Admin</th><th>Total</th><th>Entries</th></tr></thead>
+      <tbody>${reportRows(summary.by_admin, [
+        { value: (row) => row.label },
+        { value: (row) => money.format(row.total) },
+        { value: (row) => row.count }
+      ]) || `<tr><td colspan="3">No expenses</td></tr>`}</tbody>
+    </table>
+    <h2>Expense List</h2>
+    <table>
+      <thead><tr><th>Date</th><th>Name Of Cost</th><th>Total Cost</th><th>Admin</th><th>Account</th><th>Note</th></tr></thead>
+      <tbody>${reportRows(records, [
+        { value: (expense) => new Date(expense.expense_date).toLocaleDateString("en-MY") },
+        { value: (expense) => expense.name },
+        { value: (expense) => money.format(expense.amount) },
+        { value: (expense) => expense.purchaser_name },
+        { value: (expense) => expense.account },
+        { value: (expense) => expense.note || "" }
+      ]) || `<tr><td colspan="6">No expenses</td></tr>`}</tbody>
+    </table>
+  `);
+}
+
+async function syncExpensesSheet(sheetUrl, options = {}) {
+  const message = document.querySelector("#sheetSyncMessage");
+  try {
+    if (message && !options.silent) {
+      message.className = "form-message";
+      message.textContent = "Syncing Google Sheet...";
+    }
+    const payload = await api("/api/admin/expenses/sync-sheet", {
+      method: "POST",
+      body: JSON.stringify({ sheet_url: sheetUrl })
+    });
+    state.expenses = payload.expenses;
+    state.expenseSummary = payload.summary;
+    state.expenseAdmins = payload.admins;
+    state.expenseSheet = payload.sheet;
+    renderExpenses();
+  } catch (err) {
+    if (message) {
+      message.className = "form-message error-text";
+      message.textContent = err.message;
+    }
+  }
 }
 
 function breakdownRow(label, total, count) {
@@ -1121,6 +1612,88 @@ function videoCard(request) {
       </div>
     </article>
   `;
+}
+
+function renderDesignUploadPortal() {
+  document.querySelector("#view").innerHTML = `
+    <header class="topbar">
+      <div class="page-title">
+        <h1>Design Upload Portal</h1>
+        <p>Shopee customer design file submission for designer review.</p>
+      </div>
+    </header>
+    <section class="card design-upload-card">
+      <form id="designUploadForm" class="design-upload-form">
+        <label class="field compact">
+          Order ID
+          <input name="order_id" placeholder="Example: ORD-1004" required />
+        </label>
+        <label class="field compact">
+          Phone Number
+          <input name="phone_number" placeholder="Customer Shopee phone number" required />
+        </label>
+        <label class="upload-button design-file-button">
+          Upload design file
+          <input
+            type="file"
+            id="customerDesignFile"
+            accept=".png,.jpg,.jpeg,.pdf,.ppt,.pptx,.webp,.svg,.ai,.psd,image/png,image/jpeg,image/webp,image/svg+xml,application/pdf,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation"
+            required
+            data-file-label="customerDesignFileName"
+          />
+        </label>
+        <div class="file-picked" id="customerDesignFileName">No design file selected</div>
+        <button type="submit">Submit Design File</button>
+        <div class="form-message" id="designUploadMessage"></div>
+      </form>
+    </section>
+    <section class="card design-upload-note">
+      <h2 class="section-title">Accepted Files</h2>
+      <p>PNG, JPEG, PDF, PowerPoint, WEBP, SVG, AI, and PSD files. Order ID cannot be empty and the phone number must match the order.</p>
+    </section>
+  `;
+
+  bindFileLabels();
+  document.querySelector("#designUploadForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const message = document.querySelector("#designUploadMessage");
+    const form = new FormData(event.currentTarget);
+    const file = document.querySelector("#customerDesignFile")?.files?.[0];
+    message.className = "form-message";
+    message.textContent = "";
+
+    if (!String(form.get("order_id") || "").trim()) {
+      message.classList.add("error-text");
+      message.textContent = "Order ID is required.";
+      return;
+    }
+    if (!file) {
+      message.classList.add("error-text");
+      message.textContent = "Please select a design file.";
+      return;
+    }
+
+    try {
+      const payload = {
+        order_id: form.get("order_id"),
+        phone_number: form.get("phone_number"),
+        filename: file.name,
+        file_url: await readFileAsDataUrl(file)
+      };
+      const result = await api("/api/designer/design-submissions", {
+        method: "POST",
+        body: JSON.stringify(payload)
+      });
+      message.classList.add("success-text");
+      message.textContent = `${result.file.filename} uploaded to ${result.order.order_id}.`;
+      event.currentTarget.reset();
+      document.querySelector("#customerDesignFileName").textContent = "No design file selected";
+      await load();
+    } catch (err) {
+      message.classList.add("error-text");
+      message.textContent = err.message;
+    }
+  });
 }
 
 function renderWorkflow() {

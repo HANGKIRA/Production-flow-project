@@ -1,83 +1,178 @@
 [
   {
-    "expense_id": "EXP-1001",
+    "expense_id": "GSHEET-2-bGFsYW1vdmU6",
     "name": "lalamove",
     "amount": 100,
     "purchased_by": "u_admin_hang",
-    "account": "paramour bank",
-    "expense_date": "2026-04-26T02:00:00.000Z",
-    "note": ""
+    "account": "google sheet",
+    "expense_date": "2026-04-28T06:51:46.555Z",
+    "note": "Google Sheet sync",
+    "source": "google_sheet",
+    "source_row": 2
   },
   {
-    "expense_id": "EXP-1002",
+    "expense_id": "GSHEET-3-bGFsYW1vdmU6",
+    "name": "lalamove",
+    "amount": 100,
+    "purchased_by": "u_admin_hang",
+    "account": "google sheet",
+    "expense_date": "2026-04-28T06:51:46.555Z",
+    "note": "Google Sheet sync",
+    "source": "google_sheet",
+    "source_row": 3
+  },
+  {
+    "expense_id": "GSHEET-4-bGFsYW1vdmU6",
+    "name": "lalamove",
+    "amount": 100,
+    "purchased_by": "u_admin_hang",
+    "account": "google sheet",
+    "expense_date": "2026-04-28T06:51:46.555Z",
+    "note": "Google Sheet sync",
+    "source": "google_sheet",
+    "source_row": 4
+  },
+  {
+    "expense_id": "GSHEET-5-cHJheToxMjA",
     "name": "pray",
     "amount": 120,
     "purchased_by": "u_admin_hang",
-    "account": "cash",
-    "expense_date": "2026-04-24T17:54:05.787Z",
-    "note": ""
+    "account": "google sheet",
+    "expense_date": "2026-04-28T06:51:46.555Z",
+    "note": "Google Sheet sync",
+    "source": "google_sheet",
+    "source_row": 5
   },
   {
-    "expense_id": "EXP-1003",
+    "expense_id": "GSHEET-6-c2cgYWRzIHRv",
     "name": "sg ads top up",
     "amount": 330,
-    "purchased_by": "u_admin_yh",
-    "account": "paramour bank",
-    "expense_date": "2026-04-23T17:54:05.787Z",
-    "note": ""
+    "purchased_by": "u_admin_hang",
+    "account": "google sheet",
+    "expense_date": "2026-04-28T06:51:46.555Z",
+    "note": "Google Sheet sync",
+    "source": "google_sheet",
+    "source_row": 6
   },
   {
-    "expense_id": "EXP-1004",
+    "expense_id": "GSHEET-7-bGFsYW1vdmU6",
+    "name": "lalamove",
+    "amount": 100,
+    "purchased_by": "u_admin_hang",
+    "account": "google sheet",
+    "expense_date": "2026-04-28T06:51:46.555Z",
+    "note": "Google Sheet sync",
+    "source": "google_sheet",
+    "source_row": 7
+  },
+  {
+    "expense_id": "GSHEET-8-U1lTVEVNIERF",
     "name": "SYSTEM DEPO",
     "amount": 950,
     "purchased_by": "u_admin_hang",
-    "account": "bank transfer",
-    "expense_date": "2026-04-22T17:54:05.787Z",
-    "note": ""
+    "account": "google sheet",
+    "expense_date": "2026-04-28T06:51:46.555Z",
+    "note": "Google Sheet sync",
+    "source": "google_sheet",
+    "source_row": 8
   },
   {
-    "expense_id": "EXP-1005",
-    "name": "lalamove + food",
+    "expense_id": "GSHEET-9-bGFsYW12ZSAr",
+    "name": "lalamve + food",
     "amount": 10,
     "purchased_by": "u_admin_hang",
-    "account": "cash",
-    "expense_date": "2026-04-22T17:54:05.787Z",
-    "note": ""
+    "account": "google sheet",
+    "expense_date": "2026-04-28T06:51:46.555Z",
+    "note": "Google Sheet sync",
+    "source": "google_sheet",
+    "source_row": 9
   },
   {
-    "expense_id": "EXP-1006",
-    "name": "DTF X2 + sash + note pay",
-    "amount": 2900,
-    "purchased_by": "u_admin_zx",
+    "expense_id": "GSHEET-10-bGFsYW1vdmU6",
+    "name": "lalamove",
+    "amount": 100,
+    "purchased_by": "u_admin_hang",
+    "account": "google sheet",
+    "expense_date": "2026-04-28T06:51:46.555Z",
+    "note": "Google Sheet sync",
+    "source": "google_sheet",
+    "source_row": 10
+  },
+  {
+    "expense_id": "GSHEET-11-RFRGIFgyICsg",
+    "name": "DTF X2 + sash +note",
+    "amount": 29000,
+    "purchased_by": "u_admin",
     "account": "paramour bank",
-    "expense_date": "2026-04-20T17:54:05.787Z",
-    "note": ""
+    "expense_date": "2026-04-28T06:51:46.555Z",
+    "note": "Google Sheet sync",
+    "source": "google_sheet",
+    "source_row": 11
   },
   {
-    "expense_id": "EXP-1007",
+    "expense_id": "GSHEET-12-bWFrZSBhcHA6",
     "name": "make app",
     "amount": 50,
-    "purchased_by": "u_admin_yh",
-    "account": "cash",
-    "expense_date": "2026-04-19T17:54:05.787Z",
-    "note": ""
+    "purchased_by": "u_admin_hang",
+    "account": "paramour bank",
+    "expense_date": "2026-04-28T06:51:46.555Z",
+    "note": "Google Sheet sync",
+    "source": "google_sheet",
+    "source_row": 12
   },
   {
-    "expense_id": "EXP-1008",
+    "expense_id": "GSHEET-13-bGFsYW1vdmU6",
+    "name": "lalamove",
+    "amount": 100,
+    "purchased_by": "u_admin_hang",
+    "account": "google sheet",
+    "expense_date": "2026-04-28T06:51:46.555Z",
+    "note": "Google Sheet sync",
+    "source": "google_sheet",
+    "source_row": 13
+  },
+  {
+    "expense_id": "GSHEET-14-cmlnaHdheToz",
     "name": "righway",
     "amount": 30.5,
     "purchased_by": "u_admin_hang",
-    "account": "cash",
-    "expense_date": "2026-04-16T17:54:05.787Z",
-    "note": ""
+    "account": "google sheet",
+    "expense_date": "2026-04-28T06:51:46.555Z",
+    "note": "Google Sheet sync",
+    "source": "google_sheet",
+    "source_row": 14
   },
   {
-    "expense_id": "EXP-1777139817645",
-    "name": "lalamove",
-    "amount": 30,
+    "expense_id": "GSHEET-15-Y29kZXg6MjE5",
+    "name": "codex",
+    "amount": 219,
     "purchased_by": "u_admin_hang",
-    "account": "bank",
-    "expense_date": "2026-04-25T00:00:00.000Z",
-    "note": "lalamove la sohai"
+    "account": "google sheet",
+    "expense_date": "2026-04-28T06:51:46.555Z",
+    "note": "Google Sheet sync",
+    "source": "google_sheet",
+    "source_row": 15
+  },
+  {
+    "expense_id": "GSHEET-16-YWlyIHNlbGFu",
+    "name": "air selangor",
+    "amount": 144,
+    "purchased_by": "u_admin_hang",
+    "account": "google sheet",
+    "expense_date": "2026-04-28T06:51:46.555Z",
+    "note": "Google Sheet sync",
+    "source": "google_sheet",
+    "source_row": 16
+  },
+  {
+    "expense_id": "GSHEET-17-dGVzdCAxMjM6",
+    "name": "test 123",
+    "amount": 10,
+    "purchased_by": "u_admin_hang",
+    "account": "google sheet",
+    "expense_date": "2026-04-28T06:51:46.555Z",
+    "note": "Google Sheet sync",
+    "source": "google_sheet",
+    "source_row": 17
   }
 ]

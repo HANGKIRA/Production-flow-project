@@ -6,7 +6,7 @@
       "role": "STAFF",
       "hourly_rate": 160,
       "mc_days": 0,
-      "leave_days": 0,
+      "leave_days": 1,
       "status": "ACTIVE"
     },
     {
@@ -59,6 +59,14 @@
       "clock_out": "2026-04-25T18:23:26.704Z",
       "clock_in_ip": "::1",
       "clock_out_ip": "::1"
+    },
+    {
+      "entry_id": "ATT-1777267274562",
+      "user_id": "u_staff_1",
+      "clock_in": "2026-04-27T05:21:14.562Z",
+      "clock_out": "2026-04-27T09:55:02.819Z",
+      "clock_in_ip": "::1",
+      "clock_out_ip": "::1"
     }
   ],
   "leaves": [
@@ -104,6 +112,15 @@
       "type": "MC",
       "start_date": "2026-04-25T00:00:00.000Z",
       "end_date": "2026-04-25T00:00:00.000Z",
+      "days": 1,
+      "note": ""
+    },
+    {
+      "leave_id": "LEV-1777284202336",
+      "user_id": "u_staff_1",
+      "type": "Annual Leave",
+      "start_date": "2026-04-27T00:00:00.000Z",
+      "end_date": "2026-04-27T00:00:00.000Z",
       "days": 1,
       "note": ""
     }

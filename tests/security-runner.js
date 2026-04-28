@@ -3,6 +3,7 @@ import os from "node:os";
 import path from "node:path";
 
 process.env.EXPENSES_FILE = path.join(os.tmpdir(), `production-flow-expenses-${Date.now()}.json`);
+process.env.EXPENSES_SHEET_FILE = path.join(os.tmpdir(), `production-flow-expenses-sheet-${Date.now()}.json`);
 process.env.HR_FILE = path.join(os.tmpdir(), `production-flow-hr-${Date.now()}.json`);
 process.env.CLOSINGS_FILE = path.join(os.tmpdir(), `production-flow-closings-${Date.now()}.json`);
 process.env.ORDERS_FILE = path.join(os.tmpdir(), `production-flow-orders-${Date.now()}.json`);
@@ -128,6 +129,84 @@ check("staff upload flow returns only public order fields", async () => {
 
     assert.equal(response.status, 201);
     assert.equal(payload.order.files.at(-1).file_url, "mockup.png");
+    assert.equal(containsForbiddenFinanceKey(payload), false);
+  });
+});
+
+check("designer design upload portal requires designer access and order id", async () => {
+  await withServer(async (baseUrl) => {
+    const staff = await login(baseUrl, "staff", "staff123");
+    const blocked = await fetch(`${baseUrl}/api/designer/design-submissions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${staff.token}`
+      },
+      body: JSON.stringify({
+        order_id: "ORD-1004",
+        phone_number: "+60123450004",
+        filename: "logo.png",
+        file_url: "data:image/png;base64,AAAA"
+      })
+    });
+    assert.equal(blocked.status, 403);
+
+    const designer = await login(baseUrl, "designer", "designer123");
+    const missingOrder = await fetch(`${baseUrl}/api/designer/design-submissions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${designer.token}`
+      },
+      body: JSON.stringify({
+        order_id: "",
+        phone_number: "+60123450004",
+        filename: "logo.png",
+        file_url: "data:image/png;base64,AAAA"
+      })
+    });
+    const payload = await missingOrder.json();
+    assert.equal(missingOrder.status, 400);
+    assert.match(payload.error, /order_id/i);
+  });
+});
+
+check("designer can upload customer design file with matching phone", async () => {
+  await withServer(async (baseUrl) => {
+    const { token } = await login(baseUrl, "designer", "designer123");
+    const wrongPhone = await fetch(`${baseUrl}/api/designer/design-submissions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        order_id: "ORD-1004",
+        phone_number: "+60000000000",
+        filename: "logo.png",
+        file_url: "data:image/png;base64,AAAA"
+      })
+    });
+    assert.equal(wrongPhone.status, 403);
+
+    const response = await fetch(`${baseUrl}/api/designer/design-submissions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        order_id: "ORD-1004",
+        phone_number: "+60123450004",
+        filename: "logo.png",
+        file_url: "data:image/png;base64,AAAA"
+      })
+    });
+    const payload = await response.json();
+
+    assert.equal(response.status, 201);
+    assert.equal(payload.file.file_type, "customer_design");
+    assert.equal(payload.order.files.at(-1).filename, "logo.png");
     assert.equal(containsForbiddenFinanceKey(payload), false);
   });
 });
@@ -263,6 +342,35 @@ check("admin can add an expense and totals update", async () => {
     assert.equal(response.status, 201);
     assert.equal(payload.expense.amount, 88.8);
     assert.equal(payload.summary.total, before.summary.total + 88.8);
+  });
+});
+
+check("admin can sync expenses from google sheet csv", async () => {
+  await withServer(async (baseUrl) => {
+    const { token } = await login(baseUrl, "admin", "admin123");
+    const csv = [
+      "NAME OF COST,TOTAL COST,,YH,HANG,paramour bank,ZX",
+      "lalamove,rm100,,,me,,",
+      "SYSTEM DEPO,RM950,,paid,,,",
+      "DTF X2,rm2900 p pay,,,,,me"
+    ].join("\n");
+    const sheetUrl = `data:text/csv;base64,${Buffer.from(csv).toString("base64")}`;
+    const response = await fetch(`${baseUrl}/api/admin/expenses/sync-sheet`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ sheet_url: sheetUrl })
+    });
+    const payload = await response.json();
+
+    assert.equal(response.status, 200);
+    assert.equal(payload.imported_count, 3);
+    assert.ok(payload.expenses.some((expense) => expense.name === "lalamove" && expense.amount === 100));
+    assert.ok(payload.expenses.some((expense) => expense.name === "SYSTEM DEPO" && expense.purchaser_name === "YH"));
+    assert.ok(payload.expenses.some((expense) => expense.name === "DTF X2" && expense.purchaser_name === "ZX"));
+    assert.equal(payload.sheet.last_count, 3);
   });
 });
 

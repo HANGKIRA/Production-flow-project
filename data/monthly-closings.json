@@ -82,7 +82,7 @@
     "shopee_cash_out": [
       {
         "label": "RS SHOPEE",
-        "amount": 6130
+        "amount": 613
       },
       {
         "label": "PR SHOPEE",
@@ -140,10 +140,135 @@
   {
     "closing_id": "CLS-2026-04",
     "month": "2026-04",
-    "expenses": [],
-    "stock_expenses": [],
-    "shopee_cash_out": [],
-    "shopee_sales": [],
+    "expenses": [
+      {
+        "label": "YH",
+        "amount": 0
+      },
+      {
+        "label": "JH",
+        "amount": 0
+      },
+      {
+        "label": "AFDAL",
+        "amount": 0
+      },
+      {
+        "label": "SYED",
+        "amount": 0
+      },
+      {
+        "label": "TNB",
+        "amount": 0
+      },
+      {
+        "label": "RENTAL",
+        "amount": 0
+      },
+      {
+        "label": "MKT",
+        "amount": 0
+      },
+      {
+        "label": "ZX",
+        "amount": 0
+      },
+      {
+        "label": "Shahril",
+        "amount": 0
+      },
+      {
+        "label": "adam",
+        "amount": 0
+      },
+      {
+        "label": "miza",
+        "amount": 0
+      },
+      {
+        "label": "water",
+        "amount": 0
+      },
+      {
+        "label": "HAFIZ PT",
+        "amount": 0
+      },
+      {
+        "label": "RENTAL",
+        "amount": 0
+      }
+    ],
+    "stock_expenses": [
+      {
+        "label": "YH",
+        "amount": 100
+      },
+      {
+        "label": "jh spay",
+        "amount": 0
+      },
+      {
+        "label": "JH",
+        "amount": 0,
+        "note": "stock purchase"
+      },
+      {
+        "label": "ZX SPAY",
+        "amount": 0
+      }
+    ],
+    "shopee_cash_out": [
+      {
+        "label": "RS SHOPEE",
+        "amount": 0
+      },
+      {
+        "label": "PR SHOPEE",
+        "amount": 0
+      },
+      {
+        "label": "SG SHOPEE",
+        "amount": 0
+      },
+      {
+        "label": "DM Shopee",
+        "amount": 0
+      },
+      {
+        "label": "MG Shopee",
+        "amount": 0
+      },
+      {
+        "label": "tiktok",
+        "amount": 0
+      }
+    ],
+    "shopee_sales": [
+      {
+        "label": "RS SHOPEE",
+        "amount": 0
+      },
+      {
+        "label": "PR SHOPEE",
+        "amount": 0
+      },
+      {
+        "label": "SG SHOPEE",
+        "amount": 0
+      },
+      {
+        "label": "DM Shopee",
+        "amount": 0
+      },
+      {
+        "label": "MG Shopee",
+        "amount": 0
+      },
+      {
+        "label": "tiktok",
+        "amount": 0
+      }
+    ],
     "offline_unpaid": 0,
     "offline_sales": 0,
     "offline_half_deposit": 0,

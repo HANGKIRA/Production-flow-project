@@ -9,6 +9,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const publicDir = path.join(__dirname, "public");
 const dataDir = path.join(__dirname, "data");
 const expensesFile = process.env.EXPENSES_FILE || path.join(dataDir, "expenses.json");
+const expensesSheetFile = process.env.EXPENSES_SHEET_FILE || path.join(dataDir, "expenses-sheet.json");
 const hrFile = process.env.HR_FILE || path.join(dataDir, "hr.json");
 const closingsFile = process.env.CLOSINGS_FILE || path.join(dataDir, "monthly-closings.json");
 const ordersFile = process.env.ORDERS_FILE || path.join(dataDir, "orders.json");
@@ -21,6 +22,7 @@ const PORT = Number(process.env.PORT || 3000);
 const users = [
   { id: "u_admin", name: "Admin", username: "admin", password: "admin123", role: "ADMIN" },
   { id: "u_admin_yh", name: "YH", username: "yh", password: "admin123", role: "ADMIN" },
+  { id: "u_admin_jh", name: "JH", username: "jh", password: "admin123", role: "ADMIN" },
   { id: "u_admin_hang", name: "HANG", username: "hang", password: "admin123", role: "ADMIN" },
   { id: "u_admin_zx", name: "ZX", username: "zx", password: "admin123", role: "ADMIN" },
   { id: "u_staff_1", name: "Aina Staff", username: "staff", password: "staff123", role: "STAFF" },
@@ -236,6 +238,7 @@ const seedVideoRequests = [
 ];
 
 const expenses = await loadExpenses();
+const expensesSheetConfig = await loadExpensesSheetConfig();
 const hr = await loadHr();
 const monthlyClosings = await loadClosings();
 const orderStore = await loadOrderStore();
@@ -461,6 +464,21 @@ async function persistExpenses(nextExpenses = expenses) {
   await writeFile(expensesFile, JSON.stringify(nextExpenses, null, 2));
 }
 
+async function loadExpensesSheetConfig() {
+  try {
+    return JSON.parse(await readFile(expensesSheetFile, "utf8"));
+  } catch {
+    const config = { sheet_url: "", last_synced_at: null, last_count: 0, last_error: "" };
+    await persistExpensesSheetConfig(config);
+    return config;
+  }
+}
+
+async function persistExpensesSheetConfig(config = expensesSheetConfig) {
+  await mkdir(path.dirname(expensesSheetFile), { recursive: true });
+  await writeFile(expensesSheetFile, JSON.stringify(config, null, 2));
+}
+
 async function loadHr() {
   try {
     return JSON.parse(await readFile(hrFile, "utf8"));
@@ -536,6 +554,16 @@ function requireAdmin(req, res) {
   if (!user) return null;
   if (user.role !== "ADMIN") {
     sendJson(res, 403, { error: "Admin access required" });
+    return null;
+  }
+  return user;
+}
+
+function requireDesigner(req, res) {
+  const user = requireAuth(req, res);
+  if (!user) return null;
+  if (user.role !== "DESIGNER") {
+    sendJson(res, 403, { error: "Designer access required" });
     return null;
   }
   return user;
@@ -693,6 +721,142 @@ function expenseSummary() {
   };
 }
 
+function googleSheetCsvUrl(sheetUrl) {
+  const raw = String(sheetUrl || "").trim();
+  if (!raw) return "";
+  if (/\/pub\?/.test(raw) || /output=csv/i.test(raw) || /\/export\?format=csv/i.test(raw)) return raw;
+
+  const id = raw.match(/\/spreadsheets\/d\/([^/]+)/)?.[1];
+  if (!id) return raw;
+  const gid = raw.match(/[?&]gid=(\d+)/)?.[1] ?? "0";
+  return `https://docs.google.com/spreadsheets/d/${id}/export?format=csv&gid=${gid}`;
+}
+
+function parseCsv(text) {
+  const rows = [];
+  let row = [];
+  let field = "";
+  let inQuotes = false;
+
+  for (let index = 0; index < text.length; index += 1) {
+    const char = text[index];
+    const next = text[index + 1];
+    if (char === "\"") {
+      if (inQuotes && next === "\"") {
+        field += "\"";
+        index += 1;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (char === "," && !inQuotes) {
+      row.push(field);
+      field = "";
+    } else if ((char === "\n" || char === "\r") && !inQuotes) {
+      if (char === "\r" && next === "\n") index += 1;
+      row.push(field);
+      if (row.some((cell) => String(cell).trim())) rows.push(row);
+      row = [];
+      field = "";
+    } else {
+      field += char;
+    }
+  }
+
+  row.push(field);
+  if (row.some((cell) => String(cell).trim())) rows.push(row);
+  return rows;
+}
+
+function normalizeHeader(value) {
+  return String(value || "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
+}
+
+function parseMoney(value) {
+  const match = String(value || "").replace(/,/g, "").match(/-?\d+(?:\.\d+)?/);
+  return match ? roundMoney(match[0]) : 0;
+}
+
+function sheetAdminFromRow(headers, row) {
+  const adminHeaders = adminUsers();
+  for (let index = 0; index < headers.length; index += 1) {
+    const header = String(headers[index] || "").trim();
+    const normalizedHeader = normalizeHeader(header);
+    const admin = adminHeaders.find((candidate) => {
+      const normalizedName = normalizeHeader(candidate.name);
+      return normalizedHeader === normalizedName || normalizedHeader.endsWith(`_${normalizedName}`) || normalizedHeader.includes(`_${normalizedName}_`);
+    });
+    if (admin && String(row[index] || "").trim()) return admin.id;
+  }
+  return "u_admin";
+}
+
+function sheetAccountFromRow(headers, row) {
+  const normalized = headers.map(normalizeHeader);
+  const accountIndex = normalized.findIndex((header) => ["account", "bank", "payment_account"].includes(header));
+  if (accountIndex >= 0 && String(row[accountIndex] || "").trim()) return String(row[accountIndex]).trim();
+
+  const knownAccounts = ["paramour bank", "bank transfer", "cash", "transfer", "bank"];
+  for (let index = 0; index < headers.length; index += 1) {
+    const header = String(headers[index] || "").trim().toLowerCase();
+    if (knownAccounts.includes(header) && String(row[index] || "").trim()) return header;
+  }
+  return "google sheet";
+}
+
+function sheetDateFromRow(headers, row) {
+  const normalized = headers.map(normalizeHeader);
+  const dateIndex = normalized.findIndex((header) => ["date", "expense_date", "day"].includes(header));
+  if (dateIndex < 0 || !String(row[dateIndex] || "").trim()) return new Date().toISOString();
+  const parsed = new Date(row[dateIndex]);
+  return Number.isNaN(parsed.valueOf()) ? new Date().toISOString() : parsed.toISOString();
+}
+
+function expensesFromSheetCsv(csvText) {
+  const rows = parseCsv(csvText);
+  if (rows.length < 2) return [];
+  const headers = rows[0].map((value) => String(value || "").trim());
+  const normalized = headers.map(normalizeHeader);
+  const nameIndex = normalized.findIndex((header) => ["name_of_cost", "name", "cost_name", "expense", "item"].includes(header));
+  const amountIndex = normalized.findIndex((header) => ["total_cost", "amount", "total", "cost", "rm"].includes(header));
+  if (nameIndex < 0 || amountIndex < 0) {
+    throw new Error("Sheet must include NAME OF COST and TOTAL COST columns");
+  }
+
+  return rows.slice(1).map((row, index) => {
+    const name = String(row[nameIndex] || "").trim();
+    const amount = parseMoney(row[amountIndex]);
+    if (!name || amount <= 0) return null;
+    return {
+      expense_id: `GSHEET-${index + 2}-${Buffer.from(`${name}:${amount}`).toString("base64url").slice(0, 12)}`,
+      name,
+      amount,
+      purchased_by: sheetAdminFromRow(headers, row),
+      account: sheetAccountFromRow(headers, row),
+      expense_date: sheetDateFromRow(headers, row),
+      note: "Google Sheet sync",
+      source: "google_sheet",
+      source_row: index + 2
+    };
+  }).filter(Boolean);
+}
+
+async function syncExpensesFromSheet(sheetUrl = expensesSheetConfig.sheet_url) {
+  const csvUrl = googleSheetCsvUrl(sheetUrl);
+  if (!csvUrl) throw new Error("Google Sheet URL is required");
+  const response = await fetch(csvUrl);
+  if (!response.ok) throw new Error(`Google Sheet sync failed with ${response.status}`);
+  const importedExpenses = expensesFromSheetCsv(await response.text());
+  const manualExpenses = expenses.filter((expense) => expense.source !== "google_sheet");
+  expenses.splice(0, expenses.length, ...manualExpenses, ...importedExpenses);
+  expensesSheetConfig.sheet_url = sheetUrl;
+  expensesSheetConfig.last_synced_at = new Date().toISOString();
+  expensesSheetConfig.last_count = importedExpenses.length;
+  expensesSheetConfig.last_error = "";
+  await persistExpenses();
+  await persistExpensesSheetConfig();
+  return importedExpenses;
+}
+
 function attendanceHours(entry) {
   if (!entry.clock_in || !entry.clock_out) return 0;
   return roundMoney((new Date(entry.clock_out) - new Date(entry.clock_in)) / 36e5);
@@ -794,6 +958,29 @@ function dataUrlToBuffer(dataUrl) {
     mime: match[1],
     buffer: Buffer.from(match[2], "base64")
   };
+}
+
+function normalizedPhone(value) {
+  return String(value || "").replace(/[^\d]/g, "");
+}
+
+function isAllowedDesignFile(filename, fileUrl) {
+  const extension = path.extname(String(filename || "")).toLowerCase();
+  const mime = /^data:([^;]+);base64,/i.exec(String(fileUrl || ""))?.[1]?.toLowerCase() ?? "";
+  const allowedExtensions = new Set([".png", ".jpg", ".jpeg", ".pdf", ".ppt", ".pptx", ".webp", ".svg", ".ai", ".psd"]);
+  const allowedMimes = new Set([
+    "image/png",
+    "image/jpeg",
+    "image/webp",
+    "image/svg+xml",
+    "application/pdf",
+    "application/vnd.ms-powerpoint",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "application/postscript",
+    "image/vnd.adobe.photoshop",
+    ""
+  ]);
+  return allowedExtensions.has(extension) && allowedMimes.has(mime);
 }
 
 function videoExtension(mime) {
@@ -1336,6 +1523,59 @@ async function handleApi(req, res) {
     return;
   }
 
+  if (req.method === "POST" && url.pathname === "/api/designer/design-submissions") {
+    const user = requireDesigner(req, res);
+    if (!user) return;
+    const body = await readBody(req);
+    const orderId = String(body.order_id || "").trim();
+    const phoneNumber = String(body.phone_number || "").trim();
+    const filename = String(body.filename || "").trim();
+    const fileUrl = String(body.file_url || "");
+
+    if (!orderId) {
+      sendJson(res, 400, { error: "order_id is required" });
+      return;
+    }
+    if (!phoneNumber) {
+      sendJson(res, 400, { error: "phone_number is required" });
+      return;
+    }
+    if (!filename || !fileUrl) {
+      sendJson(res, 400, { error: "design file is required" });
+      return;
+    }
+
+    const order = orders.find((candidate) => candidate.order_id.toLowerCase() === orderId.toLowerCase());
+    if (!order) {
+      sendJson(res, 404, { error: "Order not found" });
+      return;
+    }
+    if (normalizedPhone(order.phone_number) !== normalizedPhone(phoneNumber)) {
+      sendJson(res, 403, { error: "Phone number does not match this order" });
+      return;
+    }
+    if (!isAllowedDesignFile(filename, fileUrl)) {
+      sendJson(res, 400, { error: "Upload PNG, JPEG, PDF, PPT, PPTX, WEBP, SVG, AI, or PSD files only" });
+      return;
+    }
+
+    const file = {
+      file_id: `FILE-${Date.now()}`,
+      filename,
+      file_url: fileUrl,
+      file_type: "customer_design",
+      uploaded_by: user.id,
+      source: "shopee_customer_upload",
+      phone_number: phoneNumber,
+      timestamp: new Date().toISOString()
+    };
+    order.files.push(file);
+    order.updated_at = file.timestamp;
+    await persistOrderStore();
+    sendJson(res, 201, { order: orderDetail(order), file });
+    return;
+  }
+
   if (req.method === "PATCH" && url.pathname.startsWith("/api/orders/")) {
     const user = requireAuth(req, res);
     if (!user) return;
@@ -1520,8 +1760,31 @@ async function handleApi(req, res) {
     sendJson(res, 200, {
       admins: adminUsers(),
       expenses: expenses.map(expenseRecord).sort((a, b) => b.expense_date.localeCompare(a.expense_date)),
-      summary: expenseSummary()
+      summary: expenseSummary(),
+      sheet: expensesSheetConfig
     });
+    return;
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/admin/expenses/sync-sheet") {
+    if (!requireAdmin(req, res)) return;
+    const body = await readBody(req);
+    const sheetUrl = body.sheet_url !== undefined ? String(body.sheet_url).trim() : expensesSheetConfig.sheet_url;
+    try {
+      const importedExpenses = await syncExpensesFromSheet(sheetUrl);
+      sendJson(res, 200, {
+        imported_count: importedExpenses.length,
+        admins: adminUsers(),
+        expenses: expenses.map(expenseRecord).sort((a, b) => b.expense_date.localeCompare(a.expense_date)),
+        summary: expenseSummary(),
+        sheet: expensesSheetConfig
+      });
+    } catch (error) {
+      expensesSheetConfig.sheet_url = sheetUrl;
+      expensesSheetConfig.last_error = error.message;
+      await persistExpensesSheetConfig();
+      sendJson(res, 400, { error: error.message, sheet: expensesSheetConfig });
+    }
     return;
   }
 
