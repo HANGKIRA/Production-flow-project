@@ -143,136 +143,139 @@
     "expenses": [
       {
         "label": "YH",
-        "amount": 0
+        "amount": 6300
       },
       {
         "label": "JH",
-        "amount": 0
+        "amount": 6300
       },
       {
         "label": "AFDAL",
-        "amount": 0
+        "amount": 2196.83
       },
       {
         "label": "SYED",
-        "amount": 0
+        "amount": 1898.95
       },
       {
         "label": "TNB",
-        "amount": 0
+        "amount": 500
       },
       {
         "label": "RENTAL",
-        "amount": 0
+        "amount": 1500
       },
       {
         "label": "MKT",
-        "amount": 0
+        "amount": 2200
       },
       {
         "label": "ZX",
-        "amount": 0
+        "amount": 5300
       },
       {
         "label": "Shahril",
-        "amount": 0
+        "amount": 1883.46
       },
       {
         "label": "adam",
-        "amount": 0
+        "amount": 1927.59
       },
       {
         "label": "miza",
-        "amount": 0
+        "amount": 1199
       },
       {
         "label": "water",
-        "amount": 0
+        "amount": 35
       },
       {
         "label": "HAFIZ PT",
-        "amount": 0
+        "amount": 1048.46
       },
       {
         "label": "RENTAL",
-        "amount": 0
+        "amount": 1600
       }
     ],
     "stock_expenses": [
       {
-        "label": "YH",
-        "amount": 100
-      },
-      {
-        "label": "jh spay",
-        "amount": 0
-      },
-      {
         "label": "JH",
-        "amount": 0,
-        "note": "stock purchase"
+        "amount": 4953.5,
+        "note": "Linked from Expenses"
       },
       {
-        "label": "ZX SPAY",
-        "amount": 0
+        "label": "YH",
+        "amount": 14447.17,
+        "note": "Linked from Expenses"
+      },
+      {
+        "label": "ZX",
+        "amount": 2087.63,
+        "note": "Linked from Expenses"
+      },
+      {
+        "label": "paramour bank",
+        "amount": 0,
+        "note": "Linked from Expenses"
       }
     ],
     "shopee_cash_out": [
       {
         "label": "RS SHOPEE",
-        "amount": 0
+        "amount": 18863
       },
       {
         "label": "PR SHOPEE",
-        "amount": 0
+        "amount": 16000
       },
       {
         "label": "SG SHOPEE",
-        "amount": 0
+        "amount": 12600
       },
       {
         "label": "DM Shopee",
-        "amount": 0
+        "amount": 5630
       },
       {
         "label": "MG Shopee",
-        "amount": 0
+        "amount": 7606.9
       },
       {
         "label": "tiktok",
-        "amount": 0
+        "amount": 5735
       }
     ],
     "shopee_sales": [
       {
         "label": "RS SHOPEE",
-        "amount": 0
+        "amount": 29150
       },
       {
         "label": "PR SHOPEE",
-        "amount": 0
+        "amount": 29269
       },
       {
         "label": "SG SHOPEE",
-        "amount": 0
+        "amount": 9820
       },
       {
         "label": "DM Shopee",
-        "amount": 0
+        "amount": 8970
       },
       {
         "label": "MG Shopee",
-        "amount": 0
+        "amount": 15279
       },
       {
         "label": "tiktok",
-        "amount": 0
+        "amount": 7800
       }
     ],
     "offline_unpaid": 0,
-    "offline_sales": 0,
-    "offline_half_deposit": 0,
-    "bank_balance": 0,
+    "offline_sales": 68000,
+    "offline_half_deposit": 16000,
+    "bank_balance": 342000,
     "note": ""
   }
 ]

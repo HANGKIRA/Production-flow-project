@@ -162,6 +162,23 @@ button:disabled {
   margin-top: 28px;
 }
 
+.nav-sector {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.nav-sector-title {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 .nav button,
 .logout {
   text-align: left;
@@ -466,6 +483,127 @@ th {
   margin-bottom: 18px;
 }
 
+.invoice-layout {
+  display: grid;
+  grid-template-columns: minmax(360px, 0.8fr) minmax(0, 1.2fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.invoice-maker {
+  display: grid;
+  gap: 12px;
+}
+
+.invoice-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.invoice-form .invoice-notes,
+.invoice-lines,
+.invoice-totals,
+.invoice-form button,
+.invoice-form .form-message {
+  grid-column: 1 / -1;
+}
+
+.invoice-form textarea {
+  min-height: 78px;
+  resize: vertical;
+}
+
+.invoice-form input,
+.invoice-form select,
+.invoice-form textarea,
+.invoice-line-row input,
+.invoice-filters input,
+.invoice-filters select {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 10px;
+  background: #fff;
+  color: var(--ink);
+}
+
+.invoice-form > button {
+  border-radius: 6px;
+  background: var(--admin);
+  color: #fff;
+  font-weight: 800;
+}
+
+.invoice-lines {
+  display: grid;
+  gap: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+.invoice-lines h3 {
+  margin: 0;
+  font-size: 15px;
+}
+
+#invoiceLineRows {
+  display: grid;
+  gap: 8px;
+}
+
+.invoice-line-row {
+  display: grid;
+  grid-template-columns: 120px minmax(150px, 1fr) 80px 110px 110px;
+  gap: 8px;
+}
+
+.invoice-totals {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.invoice-totals span {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 9px;
+  background: #f8fafc;
+  color: var(--muted);
+}
+
+.invoice-totals strong {
+  display: block;
+  color: var(--ink);
+}
+
+.invoice-filters {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) 170px 190px;
+  gap: 10px;
+}
+
+.status-buttons {
+  display: inline-grid;
+  grid-template-columns: repeat(3, max-content);
+  gap: 6px;
+}
+
+.status-buttons button {
+  border-radius: 6px;
+  padding: 7px 9px;
+  background: #e1e7f0;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.status-buttons button.active {
+  background: var(--admin);
+  color: #fff;
+}
+
 .expense-form {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   margin-bottom: 0;
@@ -543,6 +681,101 @@ th {
 
 .expense-form button {
   grid-column: 1 / -1;
+}
+
+.payslip-sheet {
+  max-width: 980px;
+  display: grid;
+  gap: 24px;
+  padding: 18px 28px;
+  background: #fff;
+  color: #000;
+  border: 1px solid var(--line);
+  font-size: 12px;
+}
+
+.payslip-head,
+.payslip-info,
+.payslip-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+}
+
+.payslip-head h3,
+.payslip-head p,
+.payslip-head small {
+  margin: 0 0 12px;
+}
+
+.payslip-logo {
+  justify-self: end;
+  align-self: start;
+  display: grid;
+  text-align: center;
+  gap: 2px;
+  margin-top: 20px;
+  letter-spacing: 0.28em;
+}
+
+.payslip-logo span {
+  font-size: 8px;
+  letter-spacing: 0;
+}
+
+.payslip-title {
+  margin: 0;
+  text-align: center;
+  font-size: 18px;
+}
+
+.payslip-sheet label,
+.payslip-row {
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) 130px;
+  gap: 10px;
+  align-items: center;
+  min-height: 24px;
+}
+
+.payslip-info label {
+  grid-template-columns: 120px minmax(0, 1fr);
+}
+
+.payslip-sheet input,
+.payslip-sheet select {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  border-bottom: 1px solid #111;
+  border-radius: 0;
+  padding: 4px 2px;
+  background: transparent;
+  color: #000;
+}
+
+.payslip-sheet input:disabled {
+  color: #555;
+  border-bottom-color: #bbb;
+}
+
+.payslip-row-head {
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.payslip-actions {
+  display: grid;
+  align-content: end;
+  justify-content: end;
+}
+
+.payslip-actions button {
+  border-radius: 6px;
+  padding: 11px 16px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 800;
 }
 
 .design-upload-note {
@@ -923,6 +1156,9 @@ th {
   .workflow-shell,
   .kanban,
   .item-form,
+  .invoice-layout,
+  .invoice-form,
+  .invoice-totals,
   .expense-form,
   .design-upload-form,
   .breakdown {
@@ -930,6 +1166,8 @@ th {
   }
 
   .order-form,
+  .invoice-line-row,
+  .invoice-filters,
   .video-form,
   .video-grid,
   .list-tools,

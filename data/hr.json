@@ -1,126 +1,134 @@
 {
   "staff": [
     {
-      "user_id": "u_staff_1",
-      "name": "Aina Staff",
+      "user_id": "u_staff_afdhal",
+      "name": "Afdal",
+      "legal_name": "Muhammad Afdhal Bin Omar",
+      "ic_number": "810706-07-5341",
+      "employee_id": "EI001",
+      "contact_number": "0123772585",
+      "department": "Manager",
+      "designation": "",
       "role": "STAFF",
-      "hourly_rate": 160,
-      "mc_days": 0,
-      "leave_days": 1,
-      "status": "ACTIVE"
+      "hourly_rate": 0,
+      "mc_days": 6,
+      "leave_days": 6,
+      "status": "ACTIVE",
+      "unpaid_leave_days": 6,
+      "emergency_leave_days": 7
     },
     {
-      "user_id": "u_designer_1",
-      "name": "Ravi Designer",
-      "role": "DESIGNER",
-      "hourly_rate": 15,
-      "mc_days": 0,
-      "leave_days": 1,
-      "status": "ACTIVE"
+      "user_id": "u_staff_sharil",
+      "name": "Shahril",
+      "legal_name": "Mohd Shahril Bin Saberi",
+      "ic_number": "930313-03-6065",
+      "employee_id": "EI002",
+      "contact_number": "0179510639",
+      "department": "",
+      "designation": "",
+      "role": "STAFF",
+      "hourly_rate": 0,
+      "mc_days": 7,
+      "leave_days": 7,
+      "status": "ACTIVE",
+      "unpaid_leave_days": 7,
+      "emergency_leave_days": 7
+    },
+    {
+      "user_id": "u_staff_adam",
+      "name": "Adam",
+      "legal_name": "Muhamad Adam Fitri Bin Adnan",
+      "ic_number": "061023-03-1053",
+      "employee_id": "EI003",
+      "contact_number": "0133764707",
+      "department": "",
+      "designation": "",
+      "role": "STAFF",
+      "hourly_rate": 0,
+      "mc_days": 7,
+      "leave_days": 7,
+      "status": "ACTIVE",
+      "unpaid_leave_days": 7,
+      "emergency_leave_days": 7
+    },
+    {
+      "user_id": "u_staff_syed",
+      "name": "Syed",
+      "legal_name": "Syed Shahizan Bin Syed Idris",
+      "ic_number": "960401-10-5777",
+      "employee_id": "EI004",
+      "contact_number": "0147319461",
+      "department": "",
+      "designation": "",
+      "role": "STAFF",
+      "hourly_rate": 0,
+      "mc_days": 7,
+      "leave_days": 7,
+      "status": "ACTIVE",
+      "unpaid_leave_days": 7,
+      "emergency_leave_days": 7
+    },
+    {
+      "user_id": "u_staff_miza",
+      "name": "Miza",
+      "legal_name": "Nurmiza Farzana Binti Mohamad Fadzil",
+      "ic_number": "001027-14-1482",
+      "employee_id": "EI006",
+      "contact_number": "",
+      "department": "",
+      "designation": "",
+      "role": "STAFF",
+      "hourly_rate": 0,
+      "mc_days": 7,
+      "leave_days": 7,
+      "status": "ACTIVE",
+      "unpaid_leave_days": 7,
+      "emergency_leave_days": 7
+    },
+    {
+      "user_id": "u_staff_hafiz",
+      "name": "Hafiz",
+      "legal_name": "Mohd Hafiz Bin Salleh",
+      "ic_number": "880118055129",
+      "employee_id": "EI005",
+      "contact_number": "",
+      "department": "",
+      "designation": "",
+      "role": "STAFF",
+      "hourly_rate": 0,
+      "mc_days": 7,
+      "leave_days": 7,
+      "status": "ACTIVE",
+      "unpaid_leave_days": 7,
+      "emergency_leave_days": 7
     }
   ],
-  "attendance": [
-    {
-      "entry_id": "ATT-1001",
-      "user_id": "u_staff_1",
-      "clock_in": "2026-04-24T18:05:48.868Z",
-      "clock_out": "2026-04-25T02:05:48.868Z",
-      "clock_in_ip": "127.0.0.1",
-      "clock_out_ip": "127.0.0.1"
-    },
-    {
-      "entry_id": "ATT-1002",
-      "user_id": "u_designer_1",
-      "clock_in": "2026-04-24T18:05:48.868Z",
-      "clock_out": "2026-04-25T00:35:48.868Z",
-      "clock_in_ip": "127.0.0.1",
-      "clock_out_ip": "127.0.0.1"
-    },
-    {
-      "entry_id": "ATT-1777141309204",
-      "user_id": "u_staff_1",
-      "clock_in": "2026-04-25T18:21:49.204Z",
-      "clock_out": "2026-04-25T18:21:50.643Z",
-      "clock_in_ip": "::1",
-      "clock_out_ip": "::1"
-    },
-    {
-      "entry_id": "ATT-1777141399674",
-      "user_id": "u_staff_1",
-      "clock_in": "2026-04-25T18:23:19.674Z",
-      "clock_out": "2026-04-25T18:23:25.041Z",
-      "clock_in_ip": "::1",
-      "clock_out_ip": "::1"
-    },
-    {
-      "entry_id": "ATT-1777141406496",
-      "user_id": "u_staff_1",
-      "clock_in": "2026-04-25T18:23:26.496Z",
-      "clock_out": "2026-04-25T18:23:26.704Z",
-      "clock_in_ip": "::1",
-      "clock_out_ip": "::1"
-    },
-    {
-      "entry_id": "ATT-1777267274562",
-      "user_id": "u_staff_1",
-      "clock_in": "2026-04-27T05:21:14.562Z",
-      "clock_out": "2026-04-27T09:55:02.819Z",
-      "clock_in_ip": "::1",
-      "clock_out_ip": "::1"
-    }
-  ],
+  "attendance": [],
   "leaves": [
     {
-      "leave_id": "LEV-1001",
-      "user_id": "u_staff_1",
+      "leave_id": "LEV-1777542836739",
+      "user_id": "u_staff_afdhal",
       "type": "MC",
-      "start_date": "2026-04-13T18:05:48.868Z",
-      "end_date": "2026-04-13T18:05:48.868Z",
+      "start_date": "2026-04-30T00:00:00.000Z",
+      "end_date": "2026-04-30T00:00:00.000Z",
       "days": 1,
-      "note": "Clinic MC"
+      "note": "sick"
     },
     {
-      "leave_id": "LEV-1002",
-      "user_id": "u_designer_1",
-      "type": "Annual Leave",
-      "start_date": "2026-04-05T18:05:48.868Z",
-      "end_date": "2026-04-05T18:05:48.868Z",
-      "days": 1,
-      "note": ""
-    },
-    {
-      "leave_id": "LEV-1777140516904",
-      "user_id": "u_staff_1",
+      "leave_id": "LEV-1777543353322",
+      "user_id": "u_staff_afdhal",
       "type": "Unpaid Leave",
-      "start_date": "2026-04-25T00:00:00.000Z",
-      "end_date": "2026-04-25T00:00:00.000Z",
+      "start_date": "2026-04-30T00:00:00.000Z",
+      "end_date": "2026-04-30T00:00:00.000Z",
       "days": 1,
       "note": ""
     },
     {
-      "leave_id": "LEV-1777140518934",
-      "user_id": "u_staff_1",
-      "type": "MC",
-      "start_date": "2026-04-25T00:00:00.000Z",
-      "end_date": "2026-04-25T00:00:00.000Z",
-      "days": 1,
-      "note": ""
-    },
-    {
-      "leave_id": "LEV-1777140519646",
-      "user_id": "u_staff_1",
-      "type": "MC",
-      "start_date": "2026-04-25T00:00:00.000Z",
-      "end_date": "2026-04-25T00:00:00.000Z",
-      "days": 1,
-      "note": ""
-    },
-    {
-      "leave_id": "LEV-1777284202336",
-      "user_id": "u_staff_1",
+      "leave_id": "LEV-1777617887165",
+      "user_id": "u_staff_afdhal",
       "type": "Annual Leave",
-      "start_date": "2026-04-27T00:00:00.000Z",
-      "end_date": "2026-04-27T00:00:00.000Z",
+      "start_date": "2026-05-01T00:00:00.000Z",
+      "end_date": "2026-05-01T00:00:00.000Z",
       "days": 1,
       "note": ""
     }

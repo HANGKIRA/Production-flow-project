@@ -1,0 +1,113 @@
+[
+  {
+    "invoice_id": "INV-1777829133837",
+    "order_id": "ORD-1001",
+    "customer_name": "Paramour Studio",
+    "company_address": "",
+    "phone_number": "+60123450001",
+    "email": "",
+    "invoice_date": "2026-05-03T00:00:00.000Z",
+    "due_date": "2026-05-17T00:00:00.000Z",
+    "items": [
+      {
+        "item_id": "ITM-001",
+        "item_name": "Premium Cap",
+        "description": "Premium Cap",
+        "quantity": 8,
+        "unit_price": 45,
+        "cost_price": 18,
+        "profit_per_item": 27,
+        "total_sales": 360,
+        "total_cost": 144,
+        "total_profit": 216,
+        "production_status": "Waiting Approval"
+      }
+    ],
+    "deposit_amount": 0,
+    "payment_status": "Unpaid",
+    "production_status": "Waiting Approval",
+    "notes": "Repeat customer. Black cap with embroidery.",
+    "created_at": "2026-05-03T17:25:36.070Z",
+    "updated_at": "2026-05-03T17:25:36.070Z",
+    "total_sales": 360,
+    "total_cost": 144,
+    "total_profit": 216,
+    "balance_amount": 360,
+    "collected_amount": 0,
+    "collected_profit": 0
+  },
+  {
+    "invoice_id": "INV-1777829132359",
+    "order_id": "ORD-1001",
+    "customer_name": "Paramour Studio",
+    "company_address": "",
+    "phone_number": "+60123450001",
+    "email": "",
+    "invoice_date": "2026-05-03T00:00:00.000Z",
+    "due_date": "2026-05-17T00:00:00.000Z",
+    "items": [
+      {
+        "item_id": "ITM-001",
+        "item_name": "Premium Cap",
+        "description": "Premium Cap",
+        "quantity": 8,
+        "unit_price": 45,
+        "cost_price": 18,
+        "profit_per_item": 27,
+        "total_sales": 360,
+        "total_cost": 144,
+        "total_profit": 216,
+        "production_status": "Waiting Approval"
+      }
+    ],
+    "deposit_amount": 0,
+    "payment_status": "Unpaid",
+    "production_status": "Waiting Approval",
+    "notes": "Repeat customer. Black cap with embroidery.",
+    "created_at": "2026-05-03T17:25:33.809Z",
+    "updated_at": "2026-05-03T17:25:33.809Z",
+    "total_sales": 360,
+    "total_cost": 144,
+    "total_profit": 216,
+    "balance_amount": 360,
+    "collected_amount": 0,
+    "collected_profit": 0
+  },
+  {
+    "invoice_id": "INV-1777829035498",
+    "order_id": "ORD-1777142879436",
+    "customer_name": "test custonmer",
+    "company_address": "",
+    "phone_number": "01955555",
+    "email": "",
+    "invoice_date": "2026-05-03T00:00:00.000Z",
+    "due_date": "2026-05-17T00:00:00.000Z",
+    "items": [
+      {
+        "item_id": "",
+        "item_name": "umbrella",
+        "description": "umbrella",
+        "quantity": 100,
+        "unit_price": 0,
+        "cost_price": 0,
+        "profit_per_item": 0,
+        "total_sales": 0,
+        "total_cost": 0,
+        "total_profit": 0,
+        "production_status": "Waiting Approval"
+      }
+    ],
+    "deposit_amount": 0,
+    "payment_status": "Paid",
+    "production_status": "Waiting Approval",
+    "notes": "canva link....",
+    "created_at": "2026-05-03T17:24:29.173Z",
+    "updated_at": "2026-05-03T17:24:48.836Z",
+    "total_sales": 0,
+    "total_cost": 0,
+    "total_profit": 0,
+    "balance_amount": 0,
+    "collected_amount": 0,
+    "collected_profit": 0
+  }
+]

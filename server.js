@@ -13,11 +13,13 @@ const expensesSheetFile = process.env.EXPENSES_SHEET_FILE || path.join(dataDir, 
 const hrFile = process.env.HR_FILE || path.join(dataDir, "hr.json");
 const closingsFile = process.env.CLOSINGS_FILE || path.join(dataDir, "monthly-closings.json");
 const ordersFile = process.env.ORDERS_FILE || path.join(dataDir, "orders.json");
+const invoicesFile = process.env.INVOICES_FILE || path.join(dataDir, "invoices.json");
 const videoFile = process.env.VIDEO_FILE || path.join(dataDir, "video-requests.json");
 const videoAssetDir = path.join(dataDir, "video-assets");
 const videoRenderDir = path.join(dataDir, "video-renders");
 const ffmpegPath = process.env.FFMPEG_PATH || "ffmpeg";
 const PORT = Number(process.env.PORT || 3000);
+const defaultHrAllowanceDays = 7;
 
 const users = [
   { id: "u_admin", name: "Admin", username: "admin", password: "admin123", role: "ADMIN" },
@@ -26,6 +28,12 @@ const users = [
   { id: "u_admin_hang", name: "HANG", username: "hang", password: "admin123", role: "ADMIN" },
   { id: "u_admin_zx", name: "ZX", username: "zx", password: "admin123", role: "ADMIN" },
   { id: "u_staff_1", name: "Aina Staff", username: "staff", password: "staff123", role: "STAFF" },
+  { id: "u_staff_afdhal", name: "Afdal", username: "afdal", password: "staff123", role: "STAFF" },
+  { id: "u_staff_sharil", name: "Shahril", username: "shahril", password: "staff123", role: "STAFF" },
+  { id: "u_staff_adam", name: "Adam", username: "adam", password: "staff123", role: "STAFF" },
+  { id: "u_staff_syed", name: "Syed", username: "syed", password: "staff123", role: "STAFF" },
+  { id: "u_staff_miza", name: "Miza", username: "miza", password: "staff123", role: "STAFF" },
+  { id: "u_staff_hafiz", name: "Hafiz", username: "hafiz", password: "staff123", role: "STAFF" },
   { id: "u_designer_1", name: "Ravi Designer", username: "designer", password: "designer123", role: "DESIGNER" }
 ];
 
@@ -146,8 +154,14 @@ const seedExpenses = [
 
 const seedHr = {
   staff: [
-    { user_id: "u_staff_1", name: "Aina Staff", role: "STAFF", hourly_rate: 12, mc_days: 1, leave_days: 2, status: "ACTIVE" },
-    { user_id: "u_designer_1", name: "Ravi Designer", role: "DESIGNER", hourly_rate: 15, mc_days: 0, leave_days: 1, status: "ACTIVE" }
+    { user_id: "u_staff_1", name: "Aina Staff", role: "STAFF", hourly_rate: 12, mc_days: 7, leave_days: 7, unpaid_leave_days: 7, emergency_leave_days: 7, status: "ACTIVE" },
+    { user_id: "u_staff_afdhal", name: "Afdal", legal_name: "Muhammad Afdhal Bin Omar", ic_number: "810706-07-5341", employee_id: "", contact_number: "", department: "Manager", designation: "", role: "STAFF", hourly_rate: 0, mc_days: 7, leave_days: 7, unpaid_leave_days: 7, emergency_leave_days: 7, status: "ACTIVE" },
+    { user_id: "u_staff_sharil", name: "Shahril", legal_name: "Mohd Shahril Bin Saberi", ic_number: "930313-03-6065", employee_id: "", contact_number: "", department: "", designation: "", role: "STAFF", hourly_rate: 0, mc_days: 7, leave_days: 7, unpaid_leave_days: 7, emergency_leave_days: 7, status: "ACTIVE" },
+    { user_id: "u_staff_adam", name: "Adam", legal_name: "Muhamad Adam Fitri Bin Adnan", ic_number: "061023-03-1053", employee_id: "", contact_number: "", department: "", designation: "", role: "STAFF", hourly_rate: 0, mc_days: 7, leave_days: 7, unpaid_leave_days: 7, emergency_leave_days: 7, status: "ACTIVE" },
+    { user_id: "u_staff_syed", name: "Syed", legal_name: "Syed Shahizan Bin Syed Idris", ic_number: "960401-10-5777", employee_id: "", contact_number: "", department: "", designation: "", role: "STAFF", hourly_rate: 0, mc_days: 7, leave_days: 7, unpaid_leave_days: 7, emergency_leave_days: 7, status: "ACTIVE" },
+    { user_id: "u_staff_miza", name: "Miza", legal_name: "Nurmiza Farzana Binti Mohamad Fadzil", ic_number: "001027-14-1482", employee_id: "", contact_number: "", department: "", designation: "", role: "STAFF", hourly_rate: 0, mc_days: 7, leave_days: 7, unpaid_leave_days: 7, emergency_leave_days: 7, status: "ACTIVE" },
+    { user_id: "u_staff_hafiz", name: "Hafiz", legal_name: "Mohd Hafiz Bin Salleh", ic_number: "880118055129", employee_id: "", contact_number: "", department: "", designation: "", role: "STAFF", hourly_rate: 0, mc_days: 7, leave_days: 7, unpaid_leave_days: 7, emergency_leave_days: 7, status: "ACTIVE" },
+    { user_id: "u_designer_1", name: "Ravi Designer", role: "DESIGNER", hourly_rate: 15, mc_days: 7, leave_days: 7, unpaid_leave_days: 7, emergency_leave_days: 7, status: "ACTIVE" }
   ],
   attendance: [
     { entry_id: "ATT-1001", user_id: "u_staff_1", clock_in: daysAgo(1), clock_out: addHours(daysAgo(1), 8), clock_in_ip: "127.0.0.1", clock_out_ip: "127.0.0.1" },
@@ -242,6 +256,7 @@ const expensesSheetConfig = await loadExpensesSheetConfig();
 const hr = await loadHr();
 const monthlyClosings = await loadClosings();
 const orderStore = await loadOrderStore();
+const invoices = await loadInvoices();
 const videoRequests = await loadVideoRequests();
 const customers = orderStore.customers;
 const orders = orderStore.orders;
@@ -268,33 +283,59 @@ function addHours(dateIso, hours) {
 function itemWithProfit(item) {
   return {
     ...item,
-    profit: roundMoney(item.selling_price - item.base_cost)
+    selling_price: roundMoney(item.selling_price || 0),
+    profit: roundMoney((item.selling_price || 0) - item.base_cost)
   };
 }
 
 function orderFinancials(order) {
   const item = items.find((candidate) => candidate.item_id === order.item_id);
+  const relatedInvoices = invoices.filter((invoice) => invoice.order_id === order.order_id).map(invoiceRecord);
+  const latestInvoice = relatedInvoices.sort((a, b) => b.updated_at.localeCompare(a.updated_at))[0];
   const item_cost = item?.base_cost ?? 0;
   const selling_price = item?.selling_price ?? 0;
-  const total_cost = roundMoney(item_cost * order.quantity);
-  const total_sales = roundMoney(selling_price * order.quantity);
-  const total_profit = roundMoney(total_sales - total_cost);
+  const total_cost = roundMoney(latestInvoice?.total_cost ?? item_cost * order.quantity);
+  const total_sales = roundMoney(latestInvoice?.total_sales ?? order.total_sales ?? selling_price * order.quantity);
+  const total_profit = roundMoney(latestInvoice?.total_profit ?? total_sales - total_cost);
+  const salesCloser = users.find((user) => user.id === order.sales_closed_by);
 
   return {
     ...order,
-    item_name: item?.item_name ?? "Unknown item",
+    item_name: item?.item_name ?? order.product_type,
     item_cost,
     selling_price,
     total_cost,
     total_sales,
-    total_profit
+    total_profit,
+    invoice_id: latestInvoice?.invoice_id ?? "",
+    invoice_payment_status: latestInvoice?.payment_status ?? order.payment_status,
+    invoice_deposit_amount: latestInvoice?.deposit_amount ?? 0,
+    invoice_balance_amount: latestInvoice?.balance_amount ?? Math.max(total_sales - (latestInvoice?.deposit_amount ?? 0), 0),
+    sales_closed_by: order.sales_closed_by || "",
+    sales_closed_by_name: salesCloser ? expenseAdminLabel(salesCloser.name) : ""
   };
 }
 
-function publicOrder(order) {
+function publicOrder(order, options = {}) {
   const item = items.find((candidate) => candidate.item_id === order.item_id);
   const assignee = users.find((user) => user.id === order.assigned_staff);
-  return {
+  const salesCloser = users.find((user) => user.id === order.sales_closed_by);
+  const orderInvoices = invoices
+    .filter((invoice) => invoice.order_id === order.order_id)
+    .map((invoice) => ({
+      invoice_id: invoice.invoice_id,
+      payment_status: invoice.payment_status,
+      production_status: invoice.production_status,
+      items: (invoice.items ?? []).map((line) => ({
+        item_id: line.item_id,
+        item_name: line.item_name,
+        description: line.description,
+        quantity: line.quantity,
+        production_status: line.production_status || invoice.production_status
+      }))
+    }))
+    .sort((a, b) => b.invoice_id.localeCompare(a.invoice_id));
+  const payload = {
     order_id: order.order_id,
     customer_id: order.customer_id,
     customer_name: order.customer_name,
@@ -317,11 +358,23 @@ function publicOrder(order) {
     created_at: order.created_at,
     updated_at: order.updated_at
   };
+  if (orderInvoices.length) {
+    payload.invoice_id = orderInvoices[0].invoice_id;
+    payload.invoice_payment_status = orderInvoices[0].payment_status;
+    payload.invoice_production_status = orderInvoices[0].production_status;
+    payload.production_items = orderInvoices.flatMap((invoice) => invoice.items);
+  }
+  if (options.includeFinancialFields) {
+    payload.total_sales = roundMoney(order.total_sales || 0);
+    payload.sales_closed_by = order.sales_closed_by || "";
+    payload.sales_closed_by_name = salesCloser ? expenseAdminLabel(salesCloser.name) : "";
+  }
+  return payload;
 }
 
-function orderDetail(order) {
+function orderDetail(order, options = {}) {
   return {
-    ...publicOrder(order),
+    ...publicOrder(order, options),
     timeline: order.timeline,
     messages: order.messages,
     files: order.files,
@@ -511,6 +564,20 @@ async function persistOrderStore(store = orderStore) {
   await writeFile(ordersFile, JSON.stringify(store, null, 2));
 }
 
+async function loadInvoices() {
+  try {
+    return JSON.parse(await readFile(invoicesFile, "utf8"));
+  } catch {
+    await persistInvoices([]);
+    return [];
+  }
+}
+
+async function persistInvoices(nextInvoices = invoices) {
+  await mkdir(path.dirname(invoicesFile), { recursive: true });
+  await writeFile(invoicesFile, JSON.stringify(nextInvoices, null, 2));
+}
+
 async function loadVideoRequests() {
   try {
     return JSON.parse(await readFile(videoFile, "utf8"));
@@ -630,11 +697,11 @@ function samePeriod(dateIso, period) {
 }
 
 function summarize(period) {
-  const filtered = orders.map(orderFinancials).filter((order) => samePeriod(order.created_at, period));
+  const filtered = invoiceFinancialRows().filter((row) => samePeriod(row.date, period));
   return filtered.reduce(
-    (summary, order) => ({
-      sales: roundMoney(summary.sales + order.total_sales),
-      profit: roundMoney(summary.profit + order.total_profit),
+    (summary, row) => ({
+      sales: roundMoney(summary.sales + row.sales),
+      profit: roundMoney(summary.profit + row.profit),
       orders: summary.orders + 1
     }),
     { sales: 0, profit: 0, orders: 0 }
@@ -662,27 +729,37 @@ function staffPerformance() {
 
 function trendData() {
   const buckets = new Map();
-  for (const order of orders.map(orderFinancials)) {
-    const key = order.created_at.slice(0, 10);
+  for (const row of invoiceFinancialRows()) {
+    const key = row.date.slice(0, 10);
     const existing = buckets.get(key) ?? { date: key, sales: 0, profit: 0 };
-    existing.sales = roundMoney(existing.sales + order.total_sales);
-    existing.profit = roundMoney(existing.profit + order.total_profit);
+    existing.sales = roundMoney(existing.sales + row.sales);
+    existing.profit = roundMoney(existing.profit + row.profit);
     buckets.set(key, existing);
   }
   return [...buckets.values()].sort((a, b) => a.date.localeCompare(b.date));
 }
 
 function adminUsers() {
-  return users
-    .filter((user) => user.role === "ADMIN")
-    .map((user) => ({ id: user.id, name: user.name }));
+  const admins = new Map();
+  for (const user of users.filter((candidate) => candidate.role === "ADMIN")) {
+    const name = expenseAdminLabel(user.name);
+    if (!admins.has(name)) admins.set(name, { id: user.id, name });
+  }
+  return [...admins.values()];
+}
+
+function expenseAdminLabel(name) {
+  const normalized = normalizeHeader(name);
+  if (normalized === "admin") return "paramour bank";
+  if (normalized === "hang") return "JH";
+  return String(name || "Unknown admin");
 }
 
 function expenseRecord(expense) {
   const purchaser = users.find((user) => user.id === expense.purchased_by);
   return {
     ...expense,
-    purchaser_name: purchaser?.name ?? "Unknown admin",
+    purchaser_name: expenseAdminLabel(purchaser?.name),
     amount: roundMoney(expense.amount)
   };
 }
@@ -777,7 +854,12 @@ function parseMoney(value) {
 }
 
 function sheetAdminFromRow(headers, row) {
-  const adminHeaders = adminUsers();
+  const adminHeaders = users
+    .filter((user) => user.role === "ADMIN")
+    .flatMap((user) => [
+      { id: user.id, name: user.name },
+      { id: user.id, name: expenseAdminLabel(user.name) }
+    ]);
   for (let index = 0; index < headers.length; index += 1) {
     const header = String(headers[index] || "").trim();
     const normalizedHeader = normalizeHeader(header);
@@ -864,8 +946,22 @@ function attendanceHours(entry) {
 
 function staffProfile(userId) {
   const user = users.find((candidate) => candidate.id === userId);
-  const profile = hr.staff.find((candidate) => candidate.user_id === userId);
-  if (!user || !profile) return null;
+  let profile = hr.staff.find((candidate) => candidate.user_id === userId);
+  if (!profile && user && (user.role === "STAFF" || user.role === "DESIGNER")) {
+    profile = {
+      user_id: user.id,
+      name: user.name,
+      role: user.role,
+      hourly_rate: 0,
+      mc_days: defaultHrAllowanceDays,
+      leave_days: defaultHrAllowanceDays,
+      unpaid_leave_days: defaultHrAllowanceDays,
+      emergency_leave_days: defaultHrAllowanceDays,
+      status: "ACTIVE"
+    };
+    hr.staff.push(profile);
+  }
+  if (!profile) return null;
   const attendance = hr.attendance.filter((entry) => entry.user_id === userId);
   const completed = attendance.filter((entry) => entry.clock_out);
   const openShift = attendance.find((entry) => !entry.clock_out);
@@ -876,8 +972,12 @@ function staffProfile(userId) {
 
   return {
     ...profile,
-    name: user.name,
-    role: user.role,
+    name: profile.name || user?.name || profile.legal_name || "Staff",
+    role: profile.role || user?.role || "STAFF",
+    mc_days: profile.mc_days ?? defaultHrAllowanceDays,
+    leave_days: profile.leave_days ?? defaultHrAllowanceDays,
+    unpaid_leave_days: profile.unpaid_leave_days ?? defaultHrAllowanceDays,
+    emergency_leave_days: profile.emergency_leave_days ?? defaultHrAllowanceDays,
     total_hours: totalHours,
     month_hours: monthHours,
     estimated_month_pay: roundMoney(monthHours * profile.hourly_rate),
@@ -900,6 +1000,41 @@ function adminHrSummary() {
     active_now: staff.filter((profile) => profile.open_shift).length,
     leave_records: hr.leaves.length
   };
+}
+
+async function createHrStaffProfile(body) {
+  const legalName = String(body.legal_name || "").trim();
+  const icNumber = String(body.ic_number || "").trim();
+  if (!legalName || !icNumber) {
+    return { status: 400, payload: { error: "Full name and IC number are required" } };
+  }
+  const displayName = String(body.name || legalName.split(/\s+/)[0] || "Staff").trim();
+  const idBase = displayName.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "") || Date.now();
+  let userId = `hr_staff_${idBase}`;
+  let suffix = 2;
+  while (hr.staff.some((candidate) => candidate.user_id === userId)) {
+    userId = `hr_staff_${idBase}_${suffix}`;
+    suffix += 1;
+  }
+  hr.staff.push({
+    user_id: userId,
+    name: displayName,
+    legal_name: legalName,
+    ic_number: icNumber,
+    employee_id: String(body.employee_id || "").trim(),
+    contact_number: String(body.contact_number || "").trim(),
+    department: "",
+    designation: "",
+    role: "STAFF",
+    hourly_rate: 0,
+    mc_days: defaultHrAllowanceDays,
+    leave_days: defaultHrAllowanceDays,
+    unpaid_leave_days: defaultHrAllowanceDays,
+    emergency_leave_days: defaultHrAllowanceDays,
+    status: "ACTIVE"
+  });
+  await persistHr();
+  return { status: 201, payload: adminHrSummary() };
 }
 
 function publicClockProfile(user) {
@@ -1092,6 +1227,143 @@ function sumItems(items = []) {
   return roundMoney(items.reduce((sum, item) => sum + Number(item.amount || 0), 0));
 }
 
+const invoicePaymentStatuses = ["Unpaid", "Half Deposit", "Paid"];
+
+function invoiceLineFromBody(line = {}, fallbackProductionStatus = "New Order") {
+  const item = items.find((candidate) => candidate.item_id === line.item_id);
+  const quantity = Math.max(Number(line.quantity || 0), 0);
+  const unitPrice = roundMoney(line.unit_price ?? item?.selling_price ?? 0);
+  const costPrice = roundMoney(line.cost_price ?? item?.base_cost ?? 0);
+  const totalSales = roundMoney(quantity * unitPrice);
+  const totalCost = roundMoney(quantity * costPrice);
+  return {
+    item_id: String(line.item_id || item?.item_id || "").trim(),
+    item_name: String(line.item_name || item?.item_name || line.description || "").trim(),
+    description: String(line.description || line.item_name || item?.item_name || "").trim(),
+    quantity,
+    unit_price: unitPrice,
+    cost_price: costPrice,
+    profit_per_item: roundMoney(unitPrice - costPrice),
+    total_sales: totalSales,
+    total_cost: totalCost,
+    total_profit: roundMoney(totalSales - totalCost),
+    production_status: String(line.production_status || fallbackProductionStatus)
+  };
+}
+
+function invoiceCollectedAmount(invoice) {
+  if (invoice.payment_status === "Paid") return roundMoney(invoice.total_sales);
+  if (invoice.payment_status === "Half Deposit") return roundMoney(invoice.deposit_amount);
+  return 0;
+}
+
+function invoiceCollectedProfit(invoice) {
+  if (invoice.payment_status === "Paid") return roundMoney(invoice.total_profit);
+  if (invoice.payment_status === "Half Deposit" && invoice.total_sales > 0) {
+    return roundMoney(invoice.total_profit * (invoice.deposit_amount / invoice.total_sales));
+  }
+  return 0;
+}
+
+function invoiceRecord(invoice) {
+  const normalized = { ...invoice, items: (invoice.items ?? []).map((line) => invoiceLineFromBody(line, invoice.production_status)) };
+  normalized.total_sales = roundMoney(normalized.items.reduce((sum, line) => sum + line.total_sales, 0));
+  normalized.total_cost = roundMoney(normalized.items.reduce((sum, line) => sum + line.total_cost, 0));
+  normalized.total_profit = roundMoney(normalized.total_sales - normalized.total_cost);
+  normalized.deposit_amount = roundMoney(normalized.deposit_amount || 0);
+  normalized.balance_amount = roundMoney(Math.max(normalized.total_sales - invoiceCollectedAmount(normalized), 0));
+  normalized.collected_amount = invoiceCollectedAmount(normalized);
+  normalized.collected_profit = invoiceCollectedProfit(normalized);
+  return normalized;
+}
+
+function normalizeInvoice(body, existing = {}) {
+  const order = orders.find((candidate) => candidate.order_id === body.order_id) ?? orders.find((candidate) => candidate.order_id === existing.order_id);
+  const now = new Date().toISOString();
+  const productionStatus = String(body.production_status || existing.production_status || order?.status || "New Order");
+  const invoiceDate = body.invoice_date ? new Date(body.invoice_date).toISOString() : existing.invoice_date || now;
+  const dueDate = body.due_date ? new Date(body.due_date).toISOString() : existing.due_date || invoiceDate;
+  const lines = Array.isArray(body.items) && body.items.length
+    ? body.items
+    : [{
+        item_id: body.item_id || order?.item_id || "",
+        item_name: body.item_name || order?.product_type || "",
+        description: body.description || order?.product_type || "",
+        quantity: body.quantity || order?.quantity || 1,
+        unit_price: body.unit_price,
+        cost_price: body.cost_price,
+        production_status: productionStatus
+      }];
+  const paymentStatus = invoicePaymentStatuses.includes(body.payment_status)
+    ? body.payment_status
+    : invoicePaymentStatuses.includes(existing.payment_status)
+      ? existing.payment_status
+      : "Unpaid";
+  const invoice = invoiceRecord({
+    invoice_id: String(body.invoice_id || existing.invoice_id || `INV-${Date.now()}`).trim(),
+    order_id: String(body.order_id || existing.order_id || order?.order_id || "").trim(),
+    customer_name: String(body.customer_name || existing.customer_name || order?.customer_name || "").trim(),
+    company_address: String(body.company_address || existing.company_address || "").trim(),
+    phone_number: String(body.phone_number || existing.phone_number || order?.phone_number || "").trim(),
+    email: String(body.email || existing.email || "").trim(),
+    invoice_date: invoiceDate,
+    due_date: dueDate,
+    items: lines.map((line) => invoiceLineFromBody(line, productionStatus)),
+    deposit_amount: roundMoney(body.deposit_amount ?? existing.deposit_amount ?? 0),
+    payment_status: paymentStatus,
+    production_status: productionStatus,
+    notes: String(body.notes ?? existing.notes ?? order?.notes ?? ""),
+    created_at: existing.created_at || now,
+    updated_at: now
+  });
+
+  if (invoice.payment_status === "Paid") invoice.deposit_amount = invoice.total_sales;
+  if (invoice.payment_status === "Unpaid") invoice.deposit_amount = 0;
+  if (invoice.payment_status === "Half Deposit" && invoice.deposit_amount <= 0) {
+    invoice.deposit_amount = roundMoney(invoice.total_sales / 2);
+  }
+  return invoiceRecord(invoice);
+}
+
+async function syncInvoiceToOrder(invoice, user) {
+  const order = orders.find((candidate) => candidate.order_id === invoice.order_id);
+  if (!order) return;
+  order.customer_name = invoice.customer_name || order.customer_name;
+  order.phone_number = invoice.phone_number || order.phone_number;
+  order.item_id = invoice.items[0]?.item_id || order.item_id;
+  order.product_type = invoice.items[0]?.item_name || invoice.items[0]?.description || order.product_type;
+  order.quantity = invoice.items.reduce((sum, line) => sum + Number(line.quantity || 0), 0) || order.quantity;
+  order.payment_status = invoice.payment_status;
+  order.total_sales = invoice.total_sales;
+  if (orderStatuses.includes(invoice.production_status) && invoice.production_status !== order.status) {
+    applyStatusChange(order, invoice.production_status, user, { payment_status: invoice.payment_status });
+  } else {
+    order.updated_at = new Date().toISOString();
+  }
+  await persistOrderStore();
+}
+
+function invoiceFinancialRows() {
+  const invoiceOrderIds = new Set(invoices.map((invoice) => invoice.order_id).filter(Boolean));
+  const rows = invoices.map(invoiceRecord).map((invoice) => ({
+    source: "invoice",
+    date: invoice.invoice_date,
+    sales: invoice.collected_amount,
+    profit: invoice.collected_profit,
+    orders: 1
+  }));
+  for (const order of orders.map(orderFinancials).filter((order) => !invoiceOrderIds.has(order.order_id))) {
+    rows.push({
+      source: "order",
+      date: order.created_at,
+      sales: order.payment_status === "Paid" ? order.total_sales : 0,
+      profit: order.payment_status === "Paid" ? order.total_profit : 0,
+      orders: 1
+    });
+  }
+  return rows;
+}
+
 function closingCalculations(closing) {
   const expensesTotal = sumItems(closing.expenses);
   const stockTotal = sumItems(closing.stock_expenses);
@@ -1184,7 +1456,7 @@ async function serveStatic(req, res) {
       ".js": "text/javascript; charset=utf-8",
       ".svg": "image/svg+xml"
     }[ext] ?? "application/octet-stream";
-    res.writeHead(200, { "Content-Type": type });
+    res.writeHead(200, { "Content-Type": type, "Cache-Control": "no-store" });
     res.end(file);
   } catch {
     res.writeHead(404);
@@ -1249,7 +1521,7 @@ async function handleApi(req, res) {
     const user = requireAuth(req, res);
     if (!user) return;
     sendJson(res, 200, {
-      orders: orders.map(publicOrder),
+      orders: orders.map((order) => publicOrder(order, { includeFinancialFields: user.role === "ADMIN" })),
       statuses: orderStatuses,
       staff: staffUsers()
     });
@@ -1278,6 +1550,8 @@ async function handleApi(req, res) {
       payment_status: body.payment_status ? String(body.payment_status) : "Unpaid",
       tracking_number: body.tracking_number ? String(body.tracking_number) : "",
       assigned_staff: body.assigned_staff ? String(body.assigned_staff) : user.id,
+      total_sales: roundMoney(body.total_sales || 0),
+      sales_closed_by: body.sales_closed_by ? String(body.sales_closed_by) : "",
       notes: body.notes ? String(body.notes) : "",
       files: [],
       messages: [],
@@ -1287,7 +1561,7 @@ async function handleApi(req, res) {
     };
     orders.unshift(order);
     await persistOrderStore();
-    sendJson(res, 201, { order: orderDetail(order) });
+    sendJson(res, 201, { order: orderDetail(order, { includeFinancialFields: user.role === "ADMIN" }) });
     return;
   }
 
@@ -1308,7 +1582,7 @@ async function handleApi(req, res) {
       return;
     }
     await persistOrderStore();
-    sendJson(res, 200, { order: orderDetail(order) });
+    sendJson(res, 200, { order: orderDetail(order, { includeFinancialFields: user.role === "ADMIN" }) });
     return;
   }
 
@@ -1572,7 +1846,7 @@ async function handleApi(req, res) {
     order.files.push(file);
     order.updated_at = file.timestamp;
     await persistOrderStore();
-    sendJson(res, 201, { order: orderDetail(order), file });
+    sendJson(res, 201, { order: orderDetail(order, { includeFinancialFields: user.role === "ADMIN" }), file });
     return;
   }
 
@@ -1592,6 +1866,8 @@ async function handleApi(req, res) {
       } else {
         if (body.payment_status !== undefined) order.payment_status = String(body.payment_status);
         if (body.tracking_number !== undefined) order.tracking_number = String(body.tracking_number);
+        if (body.total_sales !== undefined) order.total_sales = roundMoney(body.total_sales);
+        if (body.sales_closed_by !== undefined) order.sales_closed_by = String(body.sales_closed_by);
         order.updated_at = new Date().toISOString();
       }
     } catch (error) {
@@ -1599,8 +1875,10 @@ async function handleApi(req, res) {
       return;
     }
     if (body.assigned_staff !== undefined) order.assigned_staff = String(body.assigned_staff);
+    if (body.total_sales !== undefined) order.total_sales = roundMoney(body.total_sales);
+    if (body.sales_closed_by !== undefined) order.sales_closed_by = String(body.sales_closed_by);
     if (body.notes !== undefined) order.notes = String(body.notes);
-    sendJson(res, 200, { order: orderDetail(order) });
+    sendJson(res, 200, { order: orderDetail(order, { includeFinancialFields: user.role === "ADMIN" }) });
     return;
   }
 
@@ -1629,7 +1907,7 @@ async function handleApi(req, res) {
     order.files.push(file);
     order.updated_at = file.timestamp;
     await persistOrderStore();
-    sendJson(res, 201, { order: orderDetail(order), file });
+    sendJson(res, 201, { order: orderDetail(order, { includeFinancialFields: user.role === "ADMIN" }), file });
     return;
   }
 
@@ -1649,7 +1927,7 @@ async function handleApi(req, res) {
     }
     const message = appendMessage(order, String(body.message_content), body.type === "auto" ? "auto" : "manual");
     await persistOrderStore();
-    sendJson(res, 201, { order: orderDetail(order), message });
+    sendJson(res, 201, { order: orderDetail(order, { includeFinancialFields: user.role === "ADMIN" }), message });
     return;
   }
 
@@ -1678,7 +1956,7 @@ async function handleApi(req, res) {
     );
     applyStatusChange(order, "Waiting Approval", user, {});
     await persistOrderStore();
-    sendJson(res, 201, { order: orderDetail(order), message });
+    sendJson(res, 201, { order: orderDetail(order, { includeFinancialFields: user.role === "ADMIN" }), message });
     return;
   }
 
@@ -1695,7 +1973,7 @@ async function handleApi(req, res) {
     try {
       const message = simulateCustomerApproval(order, body.action, body.note ? String(body.note) : "", user);
       await persistOrderStore();
-      sendJson(res, 201, { order: orderDetail(order), message });
+      sendJson(res, 201, { order: orderDetail(order, { includeFinancialFields: user.role === "ADMIN" }), message });
     } catch (error) {
       sendJson(res, 400, { error: error.message });
     }
@@ -1717,8 +1995,8 @@ async function handleApi(req, res) {
   if (req.method === "POST" && url.pathname === "/api/admin/items") {
     if (!requireAdmin(req, res)) return;
     const body = await readBody(req);
-    if (!body.item_id || !body.item_name || Number.isNaN(Number(body.base_cost)) || Number.isNaN(Number(body.selling_price))) {
-      sendJson(res, 400, { error: "item_id, item_name, base_cost, and selling_price are required" });
+    if (!body.item_id || !body.item_name || Number.isNaN(Number(body.base_cost))) {
+      sendJson(res, 400, { error: "item_id, item_name, and base_cost are required" });
       return;
     }
     const existing = items.find((item) => item.item_id === body.item_id);
@@ -1726,7 +2004,7 @@ async function handleApi(req, res) {
       item_id: String(body.item_id),
       item_name: String(body.item_name),
       base_cost: roundMoney(body.base_cost),
-      selling_price: roundMoney(body.selling_price)
+      selling_price: roundMoney(body.selling_price || existing?.selling_price || 0)
     };
     if (existing) Object.assign(existing, payload);
     else items.push(payload);
@@ -1737,6 +2015,55 @@ async function handleApi(req, res) {
   if (req.method === "GET" && url.pathname === "/api/admin/orders/financial") {
     if (!requireAdmin(req, res)) return;
     sendJson(res, 200, { orders: orders.map(orderFinancials) });
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/admin/invoices") {
+    if (!requireAdmin(req, res)) return;
+    sendJson(res, 200, {
+      invoices: invoices.map(invoiceRecord).sort((a, b) => b.updated_at.localeCompare(a.updated_at)),
+      payment_statuses: invoicePaymentStatuses,
+      production_statuses: orderStatuses
+    });
+    return;
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/admin/invoices") {
+    const user = requireAdmin(req, res);
+    if (!user) return;
+    const body = await readBody(req);
+    if (!body.order_id || !body.customer_name) {
+      sendJson(res, 400, { error: "order_id and customer_name are required" });
+      return;
+    }
+    const invoice = normalizeInvoice(body);
+    if (!invoice.items.length || invoice.items.every((line) => !line.item_id && !line.item_name)) {
+      sendJson(res, 400, { error: "At least one invoice item is required" });
+      return;
+    }
+    const existingIndex = invoices.findIndex((candidate) => candidate.invoice_id === invoice.invoice_id);
+    if (existingIndex >= 0) invoices[existingIndex] = invoice;
+    else invoices.unshift(invoice);
+    await persistInvoices();
+    await syncInvoiceToOrder(invoice, user);
+    sendJson(res, existingIndex >= 0 ? 200 : 201, { invoice: invoiceRecord(invoice) });
+    return;
+  }
+
+  if (req.method === "PATCH" && url.pathname.startsWith("/api/admin/invoices/")) {
+    const user = requireAdmin(req, res);
+    if (!user) return;
+    const invoiceId = decodeURIComponent(url.pathname.split("/").at(-1));
+    const index = invoices.findIndex((candidate) => candidate.invoice_id === invoiceId);
+    if (index === -1) {
+      sendJson(res, 404, { error: "Invoice not found" });
+      return;
+    }
+    const invoice = normalizeInvoice(await readBody(req), invoices[index]);
+    invoices[index] = invoice;
+    await persistInvoices();
+    await syncInvoiceToOrder(invoice, user);
+    sendJson(res, 200, { invoice: invoiceRecord(invoice) });
     return;
   }
 
@@ -1794,6 +2121,13 @@ async function handleApi(req, res) {
     return;
   }
 
+  if (req.method === "POST" && ["/api/admin/hr", "/api/admin/hr/staff", "/api/admin/hr/staff/"].includes(url.pathname)) {
+    if (!requireAdmin(req, res)) return;
+    const result = await createHrStaffProfile(await readBody(req));
+    sendJson(res, result.status, result.payload);
+    return;
+  }
+
   if (req.method === "GET" && url.pathname === "/api/admin/monthly-closings") {
     if (!requireAdmin(req, res)) return;
     sendJson(res, 200, {
@@ -1828,7 +2162,12 @@ async function handleApi(req, res) {
     if (body.hourly_rate !== undefined) profile.hourly_rate = roundMoney(body.hourly_rate);
     if (body.mc_days !== undefined) profile.mc_days = Number(body.mc_days);
     if (body.leave_days !== undefined) profile.leave_days = Number(body.leave_days);
+    if (body.unpaid_leave_days !== undefined) profile.unpaid_leave_days = Number(body.unpaid_leave_days);
+    if (body.emergency_leave_days !== undefined) profile.emergency_leave_days = Number(body.emergency_leave_days);
     if (typeof body.status === "string") profile.status = body.status;
+    ["legal_name", "ic_number", "employee_id", "contact_number", "department", "designation"].forEach((field) => {
+      if (body[field] !== undefined) profile[field] = String(body[field]);
+    });
     await persistHr();
     sendJson(res, 200, adminHrSummary());
     return;
@@ -1853,8 +2192,14 @@ async function handleApi(req, res) {
       note: body.note ? String(body.note) : ""
     };
     hr.leaves.push(leave);
-    if (leave.type.toLowerCase() === "mc") profile.mc_days = roundMoney(profile.mc_days + leave.days);
-    else profile.leave_days = roundMoney(profile.leave_days + leave.days);
+    const balanceFieldByLeaveType = {
+      mc: "mc_days",
+      "annual leave": "leave_days",
+      "unpaid leave": "unpaid_leave_days",
+      "emergency leave": "emergency_leave_days"
+    };
+    const balanceField = balanceFieldByLeaveType[leave.type.toLowerCase()] ?? "leave_days";
+    profile[balanceField] = roundMoney(Math.max(Number(profile[balanceField] ?? defaultHrAllowanceDays) - leave.days, 0));
     await persistHr();
     sendJson(res, 201, adminHrSummary());
     return;

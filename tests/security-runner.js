@@ -7,6 +7,7 @@ process.env.EXPENSES_SHEET_FILE = path.join(os.tmpdir(), `production-flow-expens
 process.env.HR_FILE = path.join(os.tmpdir(), `production-flow-hr-${Date.now()}.json`);
 process.env.CLOSINGS_FILE = path.join(os.tmpdir(), `production-flow-closings-${Date.now()}.json`);
 process.env.ORDERS_FILE = path.join(os.tmpdir(), `production-flow-orders-${Date.now()}.json`);
+process.env.INVOICES_FILE = path.join(os.tmpdir(), `production-flow-invoices-${Date.now()}.json`);
 process.env.VIDEO_FILE = path.join(os.tmpdir(), `production-flow-video-${Date.now()}.json`);
 process.env.FFMPEG_PATH = "definitely-missing-ffmpeg";
 const { createServer } = await import("../server.js");
@@ -79,6 +80,7 @@ check("designer cannot access admin financial endpoints", async () => {
     const { token } = await login(baseUrl, "designer", "designer123");
     const endpoints = [
       "/api/admin/items",
+      "/api/admin/invoices",
       "/api/admin/orders/financial",
       "/api/admin/analytics",
       "/api/admin/expenses",
@@ -387,6 +389,19 @@ check("staff clock screen does not expose payroll admin fields", async () => {
   });
 });
 
+check("admin clock profile endpoint does not block admin login", async () => {
+  await withServer(async (baseUrl) => {
+    const { token } = await login(baseUrl, "admin", "admin123");
+    const response = await fetch(`${baseUrl}/api/hr/me`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const payload = await response.json();
+
+    assert.equal(response.status, 200);
+    assert.equal(payload.profile, null);
+  });
+});
+
 check("staff can clock in and out from office network", async () => {
   await withServer(async (baseUrl) => {
     const { token } = await login(baseUrl, "staff", "staff123");
@@ -419,7 +434,7 @@ check("admin can update staff hourly rate and leave", async () => {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`
       },
-      body: JSON.stringify({ hourly_rate: 18, mc_days: 2, leave_days: 3 })
+      body: JSON.stringify({ hourly_rate: 18, mc_days: 2, leave_days: 3, unpaid_leave_days: 4, emergency_leave_days: 5 })
     });
     const ratePayload = await rateResponse.json();
     const staff = ratePayload.staff.find((candidate) => candidate.user_id === "u_staff_1");
@@ -427,6 +442,9 @@ check("admin can update staff hourly rate and leave", async () => {
     assert.equal(rateResponse.status, 200);
     assert.equal(staff.hourly_rate, 18);
     assert.equal(staff.mc_days, 2);
+    assert.equal(staff.leave_days, 3);
+    assert.equal(staff.unpaid_leave_days, 4);
+    assert.equal(staff.emergency_leave_days, 5);
 
     const leaveResponse = await fetch(`${baseUrl}/api/admin/hr/leaves`, {
       method: "POST",
@@ -444,7 +462,164 @@ check("admin can update staff hourly rate and leave", async () => {
       })
     });
 
+    const leavePayload = await leaveResponse.json();
+    const staffAfterLeave = leavePayload.staff.find((candidate) => candidate.user_id === "u_staff_1");
+
     assert.equal(leaveResponse.status, 201);
+    assert.equal(staffAfterLeave.mc_days, 2);
+    assert.equal(staffAfterLeave.leave_days, 2);
+    assert.equal(staffAfterLeave.unpaid_leave_days, 4);
+    assert.equal(staffAfterLeave.emergency_leave_days, 5);
+  });
+});
+
+check("admin can add HR staff", async () => {
+  await withServer(async (baseUrl) => {
+    const { token } = await login(baseUrl, "admin", "admin123");
+    const response = await fetch(`${baseUrl}/api/admin/hr/staff`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        legal_name: "Debug Staff Bin Test",
+        ic_number: "990101-10-1234",
+        employee_id: "EMP-TEST",
+        contact_number: "0123456789"
+      })
+    });
+    const payload = await response.json();
+    const staff = payload.staff.find((candidate) => candidate.ic_number === "990101-10-1234");
+
+    assert.equal(response.status, 201);
+    assert.equal(staff.legal_name, "Debug Staff Bin Test");
+    assert.equal(staff.employee_id, "EMP-TEST");
+    assert.equal(staff.mc_days, 7);
+    assert.equal(staff.leave_days, 7);
+    assert.equal(staff.unpaid_leave_days, 7);
+    assert.equal(staff.emergency_leave_days, 7);
+    assert.equal(staff.status, "ACTIVE");
+  });
+});
+
+check("admin MC record deducts from staff MC balance", async () => {
+  await withServer(async (baseUrl) => {
+    const { token } = await login(baseUrl, "admin", "admin123");
+    const response = await fetch(`${baseUrl}/api/admin/hr/leaves`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        user_id: "u_staff_sharil",
+        type: "MC",
+        start_date: new Date().toISOString().slice(0, 10),
+        end_date: new Date().toISOString().slice(0, 10),
+        days: 1.5
+      })
+    });
+    const payload = await response.json();
+    const staff = payload.staff.find((candidate) => candidate.user_id === "u_staff_sharil");
+
+    assert.equal(response.status, 201);
+    assert.equal(staff.mc_days, 5.5);
+    assert.equal(staff.leave_days, 7);
+    assert.equal(staff.unpaid_leave_days, 7);
+    assert.equal(staff.emergency_leave_days, 7);
+  });
+});
+
+check("admin emergency and unpaid leave records deduct matching balances", async () => {
+  await withServer(async (baseUrl) => {
+    const { token } = await login(baseUrl, "admin", "admin123");
+    const unpaidResponse = await fetch(`${baseUrl}/api/admin/hr/leaves`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        user_id: "u_staff_adam",
+        type: "Unpaid Leave",
+        start_date: new Date().toISOString().slice(0, 10),
+        end_date: new Date().toISOString().slice(0, 10),
+        days: 2
+      })
+    });
+    const emergencyResponse = await fetch(`${baseUrl}/api/admin/hr/leaves`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        user_id: "u_staff_adam",
+        type: "Emergency Leave",
+        start_date: new Date().toISOString().slice(0, 10),
+        end_date: new Date().toISOString().slice(0, 10),
+        days: 1
+      })
+    });
+    const payload = await emergencyResponse.json();
+    const staff = payload.staff.find((candidate) => candidate.user_id === "u_staff_adam");
+
+    assert.equal(unpaidResponse.status, 201);
+    assert.equal(emergencyResponse.status, 201);
+    assert.equal(staff.mc_days, 7);
+    assert.equal(staff.leave_days, 7);
+    assert.equal(staff.unpaid_leave_days, 5);
+    assert.equal(staff.emergency_leave_days, 6);
+  });
+});
+
+check("admin can update HR staff details", async () => {
+  await withServer(async (baseUrl) => {
+    const { token } = await login(baseUrl, "admin", "admin123");
+    const response = await fetch(`${baseUrl}/api/admin/hr/staff/u_staff_afdhal`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        legal_name: "Updated Staff Name",
+        ic_number: "900101-10-9999",
+        employee_id: "EMP-009",
+        contact_number: "0199999999"
+      })
+    });
+    const payload = await response.json();
+    const staff = payload.staff.find((candidate) => candidate.user_id === "u_staff_afdhal");
+
+    assert.equal(response.status, 200);
+    assert.equal(staff.legal_name, "Updated Staff Name");
+    assert.equal(staff.ic_number, "900101-10-9999");
+    assert.equal(staff.employee_id, "EMP-009");
+    assert.equal(staff.contact_number, "0199999999");
+  });
+});
+
+check("admin HR staff create supports legacy HR endpoint alias", async () => {
+  await withServer(async (baseUrl) => {
+    const { token } = await login(baseUrl, "admin", "admin123");
+    const response = await fetch(`${baseUrl}/api/admin/hr`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        legal_name: "Alias Staff Bin Test",
+        ic_number: "990101-10-5678"
+      })
+    });
+    const payload = await response.json();
+    const staff = payload.staff.find((candidate) => candidate.ic_number === "990101-10-5678");
+
+    assert.equal(response.status, 201);
+    assert.equal(staff.legal_name, "Alias Staff Bin Test");
   });
 });
 

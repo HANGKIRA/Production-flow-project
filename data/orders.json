@@ -38,10 +38,10 @@
       "customer_name": "test custonmer",
       "phone_number": "01955555",
       "item_id": "",
-      "product_type": "umbrella ",
+      "product_type": "umbrella",
       "quantity": 100,
-      "status": "Ready for Payment",
-      "payment_status": "Unpaid",
+      "status": "Waiting Approval",
+      "payment_status": "Paid",
       "tracking_number": "",
       "assigned_staff": "u_staff_1",
       "notes": "canva link....",
@@ -399,6 +399,67 @@
           "provider": "simulation",
           "customer_action": null,
           "related_file_url": null
+        },
+        {
+          "message_id": "MSG-1777617922101-a6730342962b5",
+          "order_id": "ORD-1777142879436",
+          "customer_name": "test custonmer",
+          "phone_number": "01955555",
+          "message_content": "Your design is ready. Please review and reply Confirm or Redesign. Approval ID: ORD-1777142879436",
+          "type": "auto",
+          "sent_at": "2026-05-01T06:45:22.101Z",
+          "status": "simulated",
+          "direction": "outbound",
+          "provider": "simulation",
+          "customer_action": null,
+          "related_file_url": null
+        },
+        {
+          "message_id": "MSG-1777618061213-aa5002f80a8ca",
+          "order_id": "ORD-1777142879436",
+          "customer_name": "test custonmer",
+          "phone_number": "01955555",
+          "message_content": "Your design is ready. Please review and reply Confirm or Redesign. Approval ID: ORD-1777142879436",
+          "type": "auto",
+          "sent_at": "2026-05-01T06:47:41.214Z",
+          "status": "simulated",
+          "direction": "outbound",
+          "provider": "simulation",
+          "customer_action": null,
+          "related_file_url": null
+        },
+        {
+          "message_id": "MSG-1777618063481-2efdb445bd6788",
+          "order_id": "ORD-1777142879436",
+          "customer_name": "test custonmer",
+          "phone_number": "01955555",
+          "message_content": "Hi test custonmer, your design sample is ready. Please choose Confirm or Redesign. Approval ID: ORD-1777142879436",
+          "type": "auto",
+          "sent_at": "2026-05-01T06:47:43.481Z",
+          "status": "sent_simulation",
+          "direction": "outbound",
+          "provider": "simulation",
+          "customer_action": null,
+          "related_file_url": null,
+          "template_name": "design_sample_approval",
+          "interactive_actions": [
+            "confirm",
+            "redesign"
+          ]
+        },
+        {
+          "message_id": "MSG-1777618063481-6420cfc11a764",
+          "order_id": "ORD-1777142879436",
+          "customer_name": "test custonmer",
+          "phone_number": "01955555",
+          "message_content": "Your design is ready. Please review and reply Confirm or Redesign. Approval ID: ORD-1777142879436",
+          "type": "auto",
+          "sent_at": "2026-05-01T06:47:43.481Z",
+          "status": "simulated",
+          "direction": "outbound",
+          "provider": "simulation",
+          "customer_action": null,
+          "related_file_url": null
         }
       ],
       "timeline": [
@@ -511,10 +572,36 @@
           "status": "Ready for Payment",
           "changed_by": "u_admin",
           "timestamp": "2026-04-27T05:32:26.942Z"
+        },
+        {
+          "status": "New Order",
+          "changed_by": "u_admin",
+          "timestamp": "2026-05-01T06:45:17.866Z"
+        },
+        {
+          "status": "Waiting Approval",
+          "changed_by": "u_admin",
+          "timestamp": "2026-05-01T06:45:22.100Z"
+        },
+        {
+          "status": "New Order",
+          "changed_by": "u_designer_1",
+          "timestamp": "2026-05-01T06:46:05.946Z"
+        },
+        {
+          "status": "Waiting Approval",
+          "changed_by": "u_admin",
+          "timestamp": "2026-05-01T06:47:41.211Z"
+        },
+        {
+          "status": "Waiting Approval",
+          "changed_by": "u_admin",
+          "timestamp": "2026-05-01T06:47:43.481Z"
         }
       ],
       "created_at": "2026-04-25T18:47:59.436Z",
-      "updated_at": "2026-04-27T05:32:29.466Z"
+      "updated_at": "2026-05-03T17:24:48.837Z",
+      "total_sales": 0
     },
     {
       "order_id": "ORD-1001",
@@ -525,7 +612,7 @@
       "product_type": "Premium Cap",
       "quantity": 8,
       "status": "Waiting Approval",
-      "payment_status": "Paid",
+      "payment_status": "Unpaid",
       "tracking_number": "MY123456789",
       "assigned_staff": "u_staff_1",
       "notes": "Repeat customer. Black cap with embroidery.",
@@ -616,7 +703,8 @@
         }
       ],
       "created_at": "2026-04-19T18:40:48.360Z",
-      "updated_at": "2026-04-27T07:42:16.783Z"
+      "updated_at": "2026-05-03T17:25:36.072Z",
+      "total_sales": 360
     },
     {
       "order_id": "ORD-1002",
@@ -916,7 +1004,7 @@
       "item_id": "ITM-001",
       "product_type": "Premium Cap",
       "quantity": 5,
-      "status": "Designing",
+      "status": "Printing",
       "payment_status": "Unpaid",
       "tracking_number": "",
       "assigned_staff": "u_designer_1",
@@ -933,10 +1021,40 @@
           "status": "Designing",
           "changed_by": "u_designer_1",
           "timestamp": "2026-04-24T18:40:48.360Z"
+        },
+        {
+          "status": "New Order",
+          "changed_by": "u_admin",
+          "timestamp": "2026-05-01T06:45:09.837Z"
+        },
+        {
+          "status": "Designing",
+          "changed_by": "u_admin",
+          "timestamp": "2026-05-01T06:45:10.766Z"
+        },
+        {
+          "status": "New Order",
+          "changed_by": "u_designer_1",
+          "timestamp": "2026-05-01T06:46:00.763Z"
+        },
+        {
+          "status": "Designing",
+          "changed_by": "u_designer_1",
+          "timestamp": "2026-05-01T06:46:01.531Z"
+        },
+        {
+          "status": "Approved",
+          "changed_by": "u_designer_1",
+          "timestamp": "2026-05-01T06:46:02.845Z"
+        },
+        {
+          "status": "Printing",
+          "changed_by": "u_designer_1",
+          "timestamp": "2026-05-01T06:46:04.596Z"
         }
       ],
       "created_at": "2026-04-23T18:40:48.360Z",
-      "updated_at": "2026-04-24T18:40:48.360Z"
+      "updated_at": "2026-05-01T06:46:04.596Z"
     }
   ]
 }
